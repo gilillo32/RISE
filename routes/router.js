@@ -1,10 +1,9 @@
 const express = require('express');
-const {overviewView, searchView, importView} = require('../controllers/pageControllers');
+const {overviewView, companiesView} = require('../controllers/pageControllers');
 const router = express.Router();
 
 router.get('/', overviewView);
 router.get('/overview', overviewView);
-router.get('/search', searchView);
-router.get('/import', importView);
+router.get('/companies', companiesView);
 
 module.exports = {routes: router}

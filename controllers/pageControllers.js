@@ -1,17 +1,12 @@
 const overviewView = (_, res) => {
-    res.render('overview')
+    res.render('overview', {activeLink: 'overview'})
 }
 
-const searchView = (_, res) => {
-    res.render('search')
-}
-
-const importView = (_, res) => {
-    res.render('import');
+const companiesView = (_, res) => {
+    res.render('companies', {activeLink: 'companies'})
 }
 
 module.exports = {
     overviewView,
-    searchView,
-    importView
+    companiesView
 }

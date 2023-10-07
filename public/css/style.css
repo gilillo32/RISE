@@ -129,8 +129,8 @@
 /* End of Poppins font */
 
 html, body {
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: 0;
+    padding: 0;
 }
 
 .login-form {
@@ -176,20 +176,30 @@ html, body {
 }
 
 .sidebar ul li:hover {
-    color: #fff;
     background-color: #2f89fc;
     transition: .3s all;
+}
+
+.sidebar ul li:hover a {
+    color: #fff;
 }
 
 .sidebar ul li a {
     display: block;
     padding: 15px 30px;
+    color: rgba(255,255,255,.6);
+    border-bottom: 1px solid rgba(255,255,255,.1);
 }
 
 .sidebar ul li.active > a {
     color: #fff;
 }
 
+.sidebar ul li a i {
+    margin-right: 1rem;
+    width: 16px;
+    text-align: center;
+}
 
 
 /* End of dashboard sidebar */
