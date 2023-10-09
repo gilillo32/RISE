@@ -9,18 +9,18 @@ const companySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    website: {
-        type: String,
-    },
     province: {
         type: String,
     },
+    website: {
+        type: String,
+    }, 
     lastScanDate: {
         type: Date
     },
     vulnerabilities: {
-        type: Set,
-        default: new Set()
+        type: [String],
+        unique: true
     }
 })
 

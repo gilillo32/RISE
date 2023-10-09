@@ -1,11 +1,20 @@
+require("dotenv").config();
+
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
 const mongoose = require('mongoose');
-
 const router = require('./routes/router');
 
 const app = express();
+
+// Database
+mongoose.connect(process.env.DATABASE_URL);
+
+mongoose.connection
+   .on("open", () => console.log("Connected to database"))
+   .on("close", () => console.log("Disconnected from database"))
+   .on("error", (error) => console.log(error))
 
 // Set templating engine
 app.use(expressLayouts)
@@ -19,15 +28,12 @@ app.use(router.routes);
 app.use("/css", express.static(path.join(__dirname, "node_modules/mdb-ui-kit/css")));
 app.use("/js", express.static(path.join(__dirname, "node_modules/mdb-ui-kit/js")));
 
-// Database
-mongoose.connect('mongodb://localhost/' + "RISE");
+// Reference Datatables files from /js
+app.use("/js", express.static(path.join(__dirname, "node_modules/datatables.net/js")));
+app.use("/css", express.static(path.join(__dirname, "node_modules/datatables.net-bs5/css")));
+app.use("/js", express.static(path.join(__dirname, "node_modules/datatables.net-bs5/js")));
 
-mongoose.connection.once('open',function(){
-   console.log('Database connected Successfully');
-}).on('error',function(err){
-   console.log('Error connecting to database: ', err);
-})
-
-app.listen(3000, () => {
-   console.log('App listening on port 3000');
+const PORT = process.env.PORT;
+app.listen(PORT, () => {
+   console.log('App listening on port ' + PORT);
 })
