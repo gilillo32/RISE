@@ -13,32 +13,25 @@ const companiesData = async (req, res) => {
     const currentPage = parseInt(req.query.page) || 1;
     const rowsPerPage = parseInt(req.query.rowsPerPage) || 10;
     const skip = (currentPage - 1) * rowsPerPage;
-    console.log("vamos")
     const searchFilter = req.query.search.value || '';
 
     try {
         const filter = {};
-        if (searchFilter) {
-            const fields = Company.schema.obj;
-            
-            filter.$or = Object.keys(fields).map((field) => {
-                if (fields[field].type === Date) {
-                    console.log("es: ", fields[field]);
-                    return {
-                        [field]: {
-                            $eq: new Date(searchFilter).toISOString()
-                        }
-                    };
-                } else {
-                    const regex = new RegExp(searchFilter, 'i');
-                    return {
-                      [field]: regex,
-                    };
-                }
-            });
+        if (searchFilter) {       
+            filter.$or = [
+                { NIF: { $regex: searchFilter, $options: 'i'} },
+                { name: { $regex: searchFilter, $options: 'i' } },
+                { province: { $regex: searchFilter, $options: 'i' } },
+                { website: { $regex: searchFilter, $options: 'i' } },
+                { vulnerabilities: { $regex: searchFilter, $options: 'i' } },
+            ];
         }
 
-        const data = await Company.find(filter).skip(skip).limit(rowsPerPage).exec();
+        const data = await Company
+        .find(filter)
+        .skip(skip)
+        .limit(rowsPerPage)
+        .exec();
 
         const totalDocs = await Company.countDocuments();
 

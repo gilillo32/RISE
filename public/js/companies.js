@@ -19,7 +19,7 @@ $(function () {
             {data: 'NIF', defaultContent: ''},
             {data: 'name', defaultContent: ''},
             {data: 'province', defaultContent: ''},
-            {data: 'web', defaultContent: ''},
+            {data: 'website', defaultContent: ''},
             {data: 'lastScanDate', defaultContent: ''},
             {
                 data: 'vulnerabilities', 
