@@ -16,6 +16,7 @@ const companiesData = async (req, res) => {
     const searchFilter = req.query.search.value || '';
 
     try {
+        /* Filtering */
         const filter = {};
         if (searchFilter) {       
             filter.$or = [
@@ -27,10 +28,17 @@ const companiesData = async (req, res) => {
             ];
         }
 
+        /* Sorting */
+        const columnNames =  ["NIF", "name", "province", "website", "lastScanDate", "vulnerabilties"];
+        const sort = req.query.order.map(item => ([
+            columnNames[item.column], item.dir === 'asc' ? 1 : -1
+        ]));
+        
         const data = await Company
         .find(filter)
         .skip(skip)
         .limit(rowsPerPage)
+        .sort(sort)
         .exec();
 
         const totalDocs = await Company.countDocuments();

@@ -12,6 +12,7 @@ $(function () {
                 data.page = data.start / data.length + 1;
                 data.rowsPerPage = data.length;
                 data.search.value = data.search.value;
+                data.order = data.order;
             },
             dataSrc: 'data'
         },
