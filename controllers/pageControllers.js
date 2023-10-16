@@ -41,8 +41,21 @@ const companiesData = async (req, res) => {
         .sort(sort)
         .exec();
 
+        // Formatear campos de tipo fecha a 'dd-mm-aaaa'
+        for (let i = 0; i < data.length; i++) {
+            data[i].javi = "a";
+            if (data[i].lastScanDate instanceof Date) {
+                /* cannot assign string to a date field, so a new key is created */
+                data[i].formattedDate = data[i].lastScanDate.toLocaleDateString('es-ES'); // 'es-ES' para el formato 'dd-mm-aaaa'
+                console.log(data[i])
+            }
+        }
+        console.log("-------------------")
+        console.log(data);
+
         const totalDocs = await Company.countDocuments();
 
+        
         res.json({
             data: data,
             recordsTotal: totalDocs,

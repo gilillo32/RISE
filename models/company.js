@@ -24,4 +24,17 @@ const companySchema = new mongoose.Schema({
     }
 })
 
+companySchema.set('toJSON', {
+    transform: (doc, ret) => {
+        if (ret.lastScanDate instanceof Date) {
+            ret.lastScanDate = ret.lastScanDate.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+            });
+        }
+      return ret;
+    },
+  });
+
 module.exports = mongoose.model('Company', companySchema)

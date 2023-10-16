@@ -128,10 +128,13 @@
 
 /* End of Poppins font */
 
-html, body {
+body {
     margin: 0;
     padding: 0;
+    background-color: #f3f3f3;
 }
+
+
 
 .login-form {
     position: absolute;
@@ -206,4 +209,29 @@ html, body {
 
 .content {
     margin-left: 300px;
+    padding: 1.8rem;
+}
+
+.table {
+    width: 100% !important;
+}
+
+.table th, table td {
+    vertical-align: middle;
+}
+
+.column-actions {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.column-actions button {
+    margin: 0 .5rem;
+}
+
+.companies-table-wrapper {
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 5px;
+    overflow-x: auto;
 }
