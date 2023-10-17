@@ -36,7 +36,7 @@ $(function () {
             {
                 data: null,
                 render: function() {
-                    return '<button type="button" class="btn btn-success btn-floating">\
+                    return '<button type="button" class="btn btn-primary btn-floating">\
                                 <i class="fa-solid fa-pen"></i>\
                             </button>'+
                             
@@ -48,6 +48,15 @@ $(function () {
                 className: "column-actions"
             },
         ]
+    });
+
+    /* Request provinces data for provinces select */
+    $.getJSON('json/provinces.json', function(data) {
+        var select = $('#provinceSelect');
+
+        data.results.forEach(result => {
+            select.append('<option value="' + result.provincia.toLowerCase + '">' + result.provincia + '</option>');
+        });
     });
 
     $('#companiesTable').on('click', '.btn-delete-company', function() {

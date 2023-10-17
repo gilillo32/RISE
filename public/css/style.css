@@ -242,3 +242,49 @@ body {
     font-size: 2em;
     margin-right: 1rem;
 }
+
+/* New company modal */
+.new-company-modal .modal-body {
+    padding: 0 !important;
+}
+
+.modal-side-img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 0.5rem 0 0 0.5rem;
+}
+
+.toast-body > i {
+    font-size: 2em;
+    margin-right: 1rem;
+}
+
+/* New company modal */
+.new-company-modal .modal-body {
+    padding: 0 !important;
+}
+
+.modal-side-img-wrapper {
+    flex: 1;
+    background-image: url("../img/company.jpg");
+    background-size: cover;
+    background-position: center 0;
+}
+
+.add-company-form-wrapper {
+    flex: 2;
+}
+
+.company-modal-header, .add-company-form {
+    padding: 1rem 1rem .7rem 1rem;
+}
+
+select {
+    width: 100%;
+    padding: .32rem .75rem;
+    color:#4f4f4f;
+    background: transparent;
+    border: 1px solid #bdbdbd;
+    border-radius: .25rem;
+    cursor: pointer;
+}

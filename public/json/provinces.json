@@ -1,0 +1,317 @@
+{
+    "total_count": 52,
+    "results": [
+        {
+            "cod_ccaa": "12",
+            "ccaa": "Galicia",
+            "codigo": "15",
+            "provincia": "A Coruña"
+        },
+        {
+            "cod_ccaa": "10",
+            "ccaa": "Comunitat Valenciana",
+            "codigo": "03",
+            "provincia": "Alicante"
+        },
+        {
+            "cod_ccaa": "08",
+            "ccaa": "Castilla - La Mancha",
+            "codigo": "02",
+            "provincia": "Albacete"
+        },
+        {
+            "cod_ccaa": "01",
+            "ccaa": "Andalucía",
+            "codigo": "04",
+            "provincia": "Almería"
+        },
+        {
+            "cod_ccaa": "16",
+            "ccaa": "País Vasco",
+            "codigo": "01",
+            "provincia": "Araba"
+        },
+        {
+            "cod_ccaa": "03",
+            "ccaa": "Asturias, Principado de",
+            "codigo": "33",
+            "provincia": "Asturias"
+        },
+        {
+            "cod_ccaa": "07",
+            "ccaa": "Castilla y León",
+            "codigo": "05",
+            "provincia": "Ávila"
+        },
+        {
+            "cod_ccaa": "11",
+            "ccaa": "Extremadura",
+            "codigo": "06",
+            "provincia": "Badajoz"
+        },
+        {
+            "cod_ccaa": "09",
+            "ccaa": "Cataluña",
+            "codigo": "08",
+            "provincia": "Barcelona"
+        },
+        {
+            "cod_ccaa": "16",
+            "ccaa": "País Vasco",
+            "codigo": "48",
+            "provincia": "Bizkaia"
+        },
+        {
+            "cod_ccaa": "07",
+            "ccaa": "Castilla y León",
+            "codigo": "09",
+            "provincia": "Burgos"
+        },
+        {
+            "cod_ccaa": "11",
+            "ccaa": "Extremadura",
+            "codigo": "10",
+            "provincia": "Cáceres"
+        },
+        {
+            "cod_ccaa": "01",
+            "ccaa": "Andalucía",
+            "codigo": "11",
+            "provincia": "Cádiz"
+        },
+        {
+            "cod_ccaa": "06",
+            "ccaa": "Cantabria",
+            "codigo": "39",
+            "provincia": "Cantabria"
+        },
+        {
+            "cod_ccaa": "10",
+            "ccaa": "Comunitat Valenciana",
+            "codigo": "12",
+            "provincia": "Castelló"
+        },
+        {
+            "cod_ccaa": "18",
+            "ccaa": "Ceuta",
+            "codigo": "51",
+            "provincia": "Ceuta"
+        },
+        {
+            "cod_ccaa": "08",
+            "ccaa": "Castilla - La Mancha",
+            "codigo": "13",
+            "provincia": "Ciudad Real"
+        },
+        {
+            "cod_ccaa": "01",
+            "ccaa": "Andalucía",
+            "codigo": "14",
+            "provincia": "Córdoba"
+        },
+        {
+            "cod_ccaa": "08",
+            "ccaa": "Castilla - La Mancha",
+            "codigo": "16",
+            "provincia": "Cuenca"
+        },
+        {
+            "cod_ccaa": "16",
+            "ccaa": "País Vasco",
+            "codigo": "20",
+            "provincia": "Gipuzcoa"
+        },
+        {
+            "cod_ccaa": "09",
+            "ccaa": "Cataluña",
+            "codigo": "17",
+            "provincia": "Girona"
+        },
+        {
+            "cod_ccaa": "01",
+            "ccaa": "Andalucía",
+            "codigo": "18",
+            "provincia": "Granada"
+        },
+        {
+            "cod_ccaa": "08",
+            "ccaa": "Castilla - La Mancha",
+            "codigo": "19",
+            "provincia": "Guadalajara"
+        },
+        {
+            "cod_ccaa": "01",
+            "ccaa": "Andalucía",
+            "codigo": "21",
+            "provincia": "Huelva"
+        },
+        {
+            "cod_ccaa": "02",
+            "ccaa": "Aragón",
+            "codigo": "22",
+            "provincia": "Huesca"
+        },
+        {
+            "cod_ccaa": "04",
+            "ccaa": "Illes Balears",
+            "codigo": "07",
+            "provincia": "Illes Balears"
+        },
+        {
+            "cod_ccaa": "01",
+            "ccaa": "Andalucía",
+            "codigo": "23",
+            "provincia": "Jaén"
+        },
+        {
+            "cod_ccaa": "17",
+            "ccaa": "Rioja, La",
+            "codigo": "26",
+            "provincia": "La Rioja"
+        },
+        {
+            "cod_ccaa": "05",
+            "ccaa": "Canarias",
+            "codigo": "35",
+            "provincia": "Las Palmas"
+        },
+        {
+            "cod_ccaa": "07",
+            "ccaa": "Castilla y León",
+            "codigo": "24",
+            "provincia": "León"
+        },
+        {
+            "cod_ccaa": "09",
+            "ccaa": "Cataluña",
+            "codigo": "25",
+            "provincia": "Lleida"
+        },
+        {
+            "cod_ccaa": "12",
+            "ccaa": "Galicia",
+            "codigo": "27",
+            "provincia": "Lugo"
+        },
+        {
+            "cod_ccaa": "13",
+            "ccaa": "Comunidad de Madrid",
+            "codigo": "28",
+            "provincia": "Madrid"
+        },
+        {
+            "cod_ccaa": "01",
+            "ccaa": "Andalucía",
+            "codigo": "29",
+            "provincia": "Málaga"
+        },
+        {
+            "cod_ccaa": "19",
+            "ccaa": "Melilla",
+            "codigo": "52",
+            "provincia": "Melilla"
+        },
+        {
+            "cod_ccaa": "14",
+            "ccaa": "Región de Murcia",
+            "codigo": "30",
+            "provincia": "Murcia"
+        },
+        {
+            "cod_ccaa": "15",
+            "ccaa": "Comunidad Foral de Navarra",
+            "codigo": "31",
+            "provincia": "Navarra"
+        },
+        {
+            "cod_ccaa": "12",
+            "ccaa": "Galicia",
+            "codigo": "32",
+            "provincia": "Ourense"
+        },
+        {
+            "cod_ccaa": "07",
+            "ccaa": "Castilla y León",
+            "codigo": "34",
+            "provincia": "Palencia"
+        },
+        {
+            "cod_ccaa": "12",
+            "ccaa": "Galicia",
+            "codigo": "36",
+            "provincia": "Pontevedra"
+        },
+        {
+            "cod_ccaa": "07",
+            "ccaa": "Castilla y León",
+            "codigo": "37",
+            "provincia": "Salamanca"
+        },
+        {
+            "cod_ccaa": "05",
+            "ccaa": "Canarias",
+            "codigo": "38",
+            "provincia": "Santa Cruz de Tenerife"
+        },
+        {
+            "cod_ccaa": "07",
+            "ccaa": "Castilla y León",
+            "codigo": "40",
+            "provincia": "Segovia"
+        },
+        {
+            "cod_ccaa": "01",
+            "ccaa": "Andalucía",
+            "codigo": "41",
+            "provincia": "Sevilla"
+        },
+        {
+            "cod_ccaa": "07",
+            "ccaa": "Castilla y León",
+            "codigo": "42",
+            "provincia": "Soria"
+        },
+        {
+            "cod_ccaa": "09",
+            "ccaa": "Cataluña",
+            "codigo": "43",
+            "provincia": "Tarragona"
+        },
+        {
+            "cod_ccaa": "02",
+            "ccaa": "Aragón",
+            "codigo": "44",
+            "provincia": "Teruel"
+        },
+        {
+            "cod_ccaa": "08",
+            "ccaa": "Castilla - La Mancha",
+            "codigo": "45",
+            "provincia": "Toledo"
+        },
+        {
+            "cod_ccaa": "10",
+            "ccaa": "Comunitat Valenciana",
+            "codigo": "46",
+            "provincia": "Valéncia"
+        },
+        {
+            "cod_ccaa": "07",
+            "ccaa": "Castilla y León",
+            "codigo": "47",
+            "provincia": "Valladolid"
+        },
+        {
+            "cod_ccaa": "07",
+            "ccaa": "Castilla y León",
+            "codigo": "49",
+            "provincia": "Zamora"
+        },
+        {
+            "cod_ccaa": "02",
+            "ccaa": "Aragón",
+            "codigo": "50",
+            "provincia": "Zaragoza"
+        }
+    ]
+}
