@@ -9,6 +9,7 @@ const companiesView = async (_, res) => {
     res.render('companies', {activeLink: 'companies'});
 }
 
+/* Send pagged data about companies */
 const companiesData = async (req, res) => {
     const currentPage = parseInt(req.query.page) || 1;
     const rowsPerPage = parseInt(req.query.rowsPerPage) || 10;
@@ -47,15 +48,11 @@ const companiesData = async (req, res) => {
             if (data[i].lastScanDate instanceof Date) {
                 /* cannot assign string to a date field, so a new key is created */
                 data[i].formattedDate = data[i].lastScanDate.toLocaleDateString('es-ES'); // 'es-ES' para el formato 'dd-mm-aaaa'
-                console.log(data[i])
             }
         }
-        console.log("-------------------")
-        console.log(data);
 
         const totalDocs = await Company.countDocuments();
-
-        
+    
         res.json({
             data: data,
             recordsTotal: totalDocs,
@@ -67,8 +64,24 @@ const companiesData = async (req, res) => {
     }
 }
 
+const deleteCompany = async (req, res) => {
+    const _id = req.params.id;
+
+    try {
+        await Company.deleteOne({ _id: _id });
+
+        res.json({ success: true, message: `Company with ${_id} delete succesfully`});
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: `Errow while deleting company with id ${_id}`})
+    }
+}
+
 module.exports = {
     overviewView,
     companiesView,
-    companiesData
+
+    // API
+    companiesData,
+    deleteCompany
 }

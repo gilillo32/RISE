@@ -40,7 +40,7 @@ $(function () {
                                 <i class="fa-solid fa-pen"></i>\
                             </button>'+
                             
-                            '<button type="button" class="btn btn-danger btn-floating">\
+                            '<button type="button" class="btn btn-danger btn-floating btn-delete-company">\
                                 <i class="fa-solid fa-trash"></i>\
                             </button>\
                             '
@@ -50,18 +50,49 @@ $(function () {
         ]
     });
 
-    $("#companiesTable tbody").on("click", 'tr', function () {
-        const companyId = companiesTable.row(this).data()._id;
+    $('#companiesTable').on('click', '.btn-delete-company', function() {
+        const row = $(this).closest('tr');
+        const _id = companiesTable.row(row).data()._id;
+        const notificationContainer = $("#notification-container");
+        let toastHTML;
 
         $.ajax({
-            url: `/deleteCompany/$(companyId)`,
-            type: "DELETE",
-            success: function(_) {
-                companiesTable.row($(this).closest("tr")).remove().draw();
+            url: `/api/deleteCompany/${_id}`,
+            method: 'DELETE',
+            success: function(response) {
+                // update table
+                companiesTable.row(row).remove().draw();
+
+                toastHTML = 
+                    '<div class="toast align-items-center text-bg-success text-white mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">' +
+                        '<div class="d-flex">' +
+                            '<div class="toast-body"><i class="fa-solid fa-circle-check"></i> Company succesfully deleted</div>' +
+                            '<button type="button" class="btn-close m-auto text-white" data-bs-dismiss="toast" aria-label="Close"></button>' +
+                        '</div>' +
+                    '</div>';
             },
-            error: function(_, _, error) {
-                console.error("Error while deleting company", error);
+            error: function(error) {
+                toastHTML = 
+                    '<div class="toast align-items-center text-bg-danger text-white mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">' +
+                        '<div class="d-flex">' +
+                            '<div class="toast-body"><i class="fa-solid fa-circle-xmark"></i> Error while deleting company</div>' +
+                            '<button type="button" class="btn-close m-auto text-white" data-bs-dismiss="toast" aria-label="Close"></button>' +
+                        '</div>' +
+                    '</div>';
+                console.log('Error on AJAX request: ', error.responseText);
             }
-        })
-    })
+        }).always(function() {
+            // append notification
+            notificationContainer.append(toastHTML);
+    
+            const toastElement = notificationContainer.find(".toast:last");
+            let toast = new bootstrap.Toast(toastElement);
+            toast.show();
+
+            // remove from DOM when notification gets hidden
+            toastElement.on('hidden.bs.toast', function() {
+                $(this).remove();
+            });
+        });
+    });
 });

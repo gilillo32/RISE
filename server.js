@@ -21,11 +21,12 @@ app.use(expressLayouts)
 app.set('view engine', 'ejs');
 
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use(router.routes);
 
-// Reference MDB files from /css and /js
+// Reference Bootstrap and MDB files from /css and /js
+
 app.use("/css", express.static(path.join(__dirname, "node_modules/mdb-ui-kit/css")));
+app.use("/js", express.static(path.join(__dirname, "node_modules/bootstrap/dist/js")));
 app.use("/js", express.static(path.join(__dirname, "node_modules/mdb-ui-kit/js")));
 
 // Reference Datatables files from /js

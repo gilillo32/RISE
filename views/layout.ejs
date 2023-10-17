@@ -19,8 +19,12 @@
 <body>
     <%- include('partials/sidebar.ejs')%>
     <div class="content">
+        <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 5">
+        </div>
         <%- body %>
     </div>
+    <!-- Bootstrap Javascript -->
+    <script src="js/bootstrap.min.js"></script>
     <!-- MDB5 Javascript -->
     <script src="js/mdb.min.js"></script>
     <!-- Datatables -->
