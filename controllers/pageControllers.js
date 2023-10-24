@@ -64,6 +64,36 @@ const companiesData = async (req, res) => {
     }
 }
 
+const findByNIF = async (req, res) => {
+    const NIF = req.params.NIF;
+
+    try {
+        const company = await Company.findOne({ 'NIF': NIF });
+        res.json({data: company});
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: `Errow while querying a comany with NIF ${NIF}`})
+    }
+}
+
+const insertCompany = async (req, res) => {
+    const company = req.body;
+
+     try {
+        await Company.create({
+            NIF: company.NIF,
+            name: company.name,
+            province: company.province,
+            website: company.website
+        });
+
+        res.json({ success: true, message: `company with NIF ${company.NIF} added succesfully` });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: `Errow while adding company with NIF ${company.NIF}`});
+    }
+}
+
 const deleteCompany = async (req, res) => {
     const _id = req.params.id;
 
@@ -83,5 +113,7 @@ module.exports = {
 
     // API
     companiesData,
+    findByNIF,
+    insertCompany,
     deleteCompany
 }

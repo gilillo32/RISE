@@ -3,6 +3,8 @@ const {
     overviewView, 
     companiesView,
     companiesData,
+    findByNIF,
+    insertCompany,
     deleteCompany
 } = require('../controllers/pageControllers');
 const router = express.Router();
@@ -14,6 +16,8 @@ router.get('/companies', companiesView);
 
 // API routes
 router.get('/api/getCompanies', companiesData);
+router.get('/api/findByNIF/:NIF', findByNIF);
+router.post('/api/insertCompany', insertCompany);
 router.delete('/api/deleteCompany/:id', deleteCompany);
 
 module.exports = {routes: router}

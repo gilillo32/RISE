@@ -5,8 +5,12 @@ const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
 const mongoose = require('mongoose');
 const router = require('./routes/router');
+const bodyParser = require('body-parser');
 
 const app = express();
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 // Database
 mongoose.connect(process.env.DATABASE_URL);

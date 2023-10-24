@@ -1,4 +1,5 @@
 $(function () {
+    /* Initialise companies DataTable */
     let companiesTable = $('#companiesTable').DataTable({
         paging: true,
         searching: true,
@@ -55,15 +56,16 @@ $(function () {
         var select = $('#provinceSelect');
 
         data.results.forEach(result => {
-            select.append('<option value="' + result.provincia.toLowerCase + '">' + result.provincia + '</option>');
+            select.append('<option value="' + result.provincia + '">' + result.provincia + '</option>');
         });
+
+        $("#provinceSelect").val("Gipuzcoa");
     });
 
+    /* Delete company event */
     $('#companiesTable').on('click', '.btn-delete-company', function() {
         const row = $(this).closest('tr');
         const _id = companiesTable.row(row).data()._id;
-        const notificationContainer = $("#notification-container");
-        let toastHTML;
 
         $.ajax({
             url: `/api/deleteCompany/${_id}`,
@@ -72,36 +74,95 @@ $(function () {
                 // update table
                 companiesTable.row(row).remove().draw();
 
-                toastHTML = 
-                    '<div class="toast align-items-center text-bg-success text-white mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">' +
-                        '<div class="d-flex">' +
-                            '<div class="toast-body"><i class="fa-solid fa-circle-check"></i> Company succesfully deleted</div>' +
-                            '<button type="button" class="btn-close m-auto text-white" data-bs-dismiss="toast" aria-label="Close"></button>' +
-                        '</div>' +
-                    '</div>';
+                notify("success", "Company succesfully deleted");
             },
             error: function(error) {
-                toastHTML = 
-                    '<div class="toast align-items-center text-bg-danger text-white mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">' +
-                        '<div class="d-flex">' +
-                            '<div class="toast-body"><i class="fa-solid fa-circle-xmark"></i> Error while deleting company</div>' +
-                            '<button type="button" class="btn-close m-auto text-white" data-bs-dismiss="toast" aria-label="Close"></button>' +
-                        '</div>' +
-                    '</div>';
+                notify("danger", "Error while deleting company");
                 console.log('Error on AJAX request: ', error.responseText);
             }
-        }).always(function() {
-            // append notification
-            notificationContainer.append(toastHTML);
-    
-            const toastElement = notificationContainer.find(".toast:last");
-            let toast = new bootstrap.Toast(toastElement);
-            toast.show();
-
-            // remove from DOM when notification gets hidden
-            toastElement.on('hidden.bs.toast', function() {
-                $(this).remove();
-            });
         });
     });
+
+    /* Add new company form validation and request */
+    $("#newCompanyForm").on('submit', function(event) {
+        event.preventDefault();
+
+        let error = 0;
+        let formData = new FormData(event.target);
+        let formProps = Object.fromEntries(formData);
+
+        // check whether the NIF format is correct or not
+        const nifPattern = /^[A-Z]\d{8}$/;
+        if (!nifPattern.test(formProps.NIF)) {
+            $("#NIF").removeClass("is-valid").addClass("is-invalid"); 
+            $("#NIFFeedback").text("Please use correct format (e.g. A01234567).");
+            error = 1;
+        } else {
+            $("#NIFFeedback").text("");
+            $("#NIF").removeClass("is-invalid").addClass("is-valid");
+        }
+
+        // check whether the name is empty or not
+        if (formProps.name === "") {
+            $("#newCompanyName").removeClass("is-valid").addClass("is-invalid");
+            error = 1;
+        } else {
+            $("#newCompanyName").removeClass("is-invalid").addClass("is-valid");
+        }
+
+        // check whether the website format is correct or not
+        const urlPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
+        if (!urlPattern.test(formProps.website)) {
+            $("#website").removeClass("is-valid");
+            $("#website").addClass("is-invalid");
+            error = 1;
+        } else {
+            $("#website").removeClass("is-invalid");
+            $("#website").addClass("is-valid");
+        }
+
+        if (!error) {
+            // check whether the NIF is already registered or not
+            $.ajax({
+                url: `/api/findByNIF/${formProps.NIF}`,
+                method: 'GET',
+                success: function(response) {
+                    if (response.data) {
+                        $('#NIF').removeClass('is-valid').addClass('is-invalid');
+                        $('#NIFFeedback').text('A company with the specified NIF number already exists.');
+                    } else {
+                        // insert new company
+                        console.log(formProps);
+                        $.ajax({
+                            url: '/api/insertCompany',
+                            method: 'POST',
+                            data: formProps,
+                            success: function(response) {
+                                notify('success', 'Company added succesfully');
+
+                                // clear form styles/values
+                                $('#newCompanyForm input').each(function() {
+                                    $(this).removeClass("is-valid is-invalid");
+                                });
+
+                                // close modal
+                                $('#newCompanyModal').modal('hide');
+
+                                // refresh table
+                                companiesTable.clear().draw();
+                            },
+                            error: function(error) {
+                                notify('danger', 'Error while adding the new company');
+                                console.log('Error on AJAX request: ', error.responseText);
+                            }
+                        });
+                    }
+                },
+                error: function(error) {
+                    notify('danger', `Error while finding a company with NIF ${formProps.NIF}`);
+                    console.log('Error on AJAX request: ', error.responseText);
+                }
+            });
+        }
+    })
 });
