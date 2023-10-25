@@ -87,10 +87,28 @@ const insertCompany = async (req, res) => {
             website: company.website
         });
 
-        res.json({ success: true, message: `company with NIF ${company.NIF} added succesfully` });
+        res.json({ success: true, message: `company with NIF ${company.NIF} added successfully` });
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: false, message: `Errow while adding company with NIF ${company.NIF}`});
+    }
+}
+
+const updateCompany = async (req, res) => {
+    const company = req.body;
+
+    try {
+        await Company.findOneAndUpdate({_id: company._id}, {
+            NIF: company.NIF,
+            name: company.name,
+            province: company.province,
+            website: company.website
+        });
+
+        res.json({ success: true, message: `company with _id ${company._id} updated successfully` });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: `Error while updating company with _id ${company._id}` });
     }
 }
 
@@ -100,7 +118,7 @@ const deleteCompany = async (req, res) => {
     try {
         await Company.deleteOne({ _id: _id });
 
-        res.json({ success: true, message: `Company with ${_id} delete succesfully`});
+        res.json({ success: true, message: `Company with ${_id} deleted successfully`});
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: false, message: `Errow while deleting company with id ${_id}`})
@@ -115,5 +133,6 @@ module.exports = {
     companiesData,
     findByNIF,
     insertCompany,
+    updateCompany,
     deleteCompany
 }

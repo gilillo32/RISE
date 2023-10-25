@@ -5,6 +5,7 @@ const {
     companiesData,
     findByNIF,
     insertCompany,
+    updateCompany,
     deleteCompany
 } = require('../controllers/pageControllers');
 const router = express.Router();
@@ -18,6 +19,7 @@ router.get('/companies', companiesView);
 router.get('/api/getCompanies', companiesData);
 router.get('/api/findByNIF/:NIF', findByNIF);
 router.post('/api/insertCompany', insertCompany);
+router.put('/api/updateCompany', updateCompany);
 router.delete('/api/deleteCompany/:id', deleteCompany);
 
 module.exports = {routes: router}

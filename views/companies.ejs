@@ -1,6 +1,6 @@
 <div class="companies-table-wrapper shadow-2">
     <div class="more-actions-wrapper d-flex justify-content-end mb-3">
-        <button type="button" class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#newCompanyModal">Add company</button>
+        <button type="button" class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#companyModal" data-action="create">Add company</button>
     </div>
     <table id="companiesTable" class="table table-hover">
         <thead>
@@ -19,7 +19,7 @@
     </table>
 </div>
 
-<div id="newCompanyModal" class="add-company-modal modal fade new-company-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div id="companyModal" class="add-company-modal modal fade new-company-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-action="create">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-body d-flex">
@@ -27,10 +27,10 @@
                 </div>
                 <div class="add-company-form-wrapper">
                     <div class="company-modal-header bg-primary d-flex justify-content-between">
-                        <h5 class="text-white">Add company</h5>
+                        <h5 id="companyModalTitle" class="text-white">Add company</h5>
                         <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form id="newCompanyForm" class="add-company-form" novalidate>
+                    <form id="companyForm" class="add-company-form" novalidate>
                         <!-- NIF input -->
                         <div class="form-outline mb-4">
                           <input type="text" id="NIF" class="form-control" name="NIF" required />
@@ -40,7 +40,7 @@
                       
                         <!-- Name input -->
                         <div class="form-outline mb-4">
-                          <input type="text" id="newCompanyName" class="form-control" name="name" required />
+                          <input type="text" id="companyName" class="form-control" name="name" required />
                           <label class="form-label" for="name">Name</label>
                           <div class="invalid-feedback">Cannot be empty</div>
                         </div>
@@ -58,7 +58,7 @@
                         </div>
                         <div class="d-flex justify-content-end">
                             <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Cancel</button>
-                            <button id="addCompanyBtn" type="submit" class="btn btn-primary ms-2">Add company</button>
+                            <button id="saveCompanyBtn" type="submit" class="btn btn-primary ms-2">Add company</button>
                         </div>
                     </form>
                 </div>

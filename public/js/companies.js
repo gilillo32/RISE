@@ -1,3 +1,16 @@
+function closeCompanyModal(datatable) {
+    // clear form styles/values
+    $("#companyForm input").each(function() {
+        $(this).removeClass("is-valid is-invalid");
+    });
+
+    // close modal
+    $("#companyModal").modal("hide");
+
+    // refresh table
+    datatable.draw();
+}
+
 $(function () {
     /* Initialise companies DataTable */
     let companiesTable = $('#companiesTable').DataTable({
@@ -42,7 +55,7 @@ $(function () {
             {
                 data: null,
                 render: function() {
-                    return '<button type="button" class="btn btn-primary btn-floating">\
+                    return '<button type="button" class="btn btn-primary btn-floating" data-mdb-toggle="modal" data-mdb-target="#companyModal" data-action="edit">\
                                 <i class="fa-solid fa-pen"></i>\
                             </button>'+
                             
@@ -79,7 +92,7 @@ $(function () {
                 // update table
                 companiesTable.row(row).remove().draw();
 
-                notify("success", "Company succesfully deleted");
+                notify("success", "Company successfully deleted");
             },
             error: function(error) {
                 notify("danger", "Error while deleting company");
@@ -89,7 +102,11 @@ $(function () {
     });
 
     /* Add new company form validation and request */
-    $("#newCompanyForm").on('submit', function(event) {
+    $("#companyForm").on('submit', function(event) {
+        let action = $("#companyModal").data("action");
+        console.log($("#companyModal"));
+        console.log(action);
+
         event.preventDefault();
 
         let error = 0;
@@ -109,10 +126,10 @@ $(function () {
 
         // check whether the name is empty or not
         if (formProps.name === "") {
-            $("#newCompanyName").removeClass("is-valid").addClass("is-invalid");
+            $("#companyName").removeClass("is-valid").addClass("is-invalid");
             error = 1;
         } else {
-            $("#newCompanyName").removeClass("is-invalid").addClass("is-valid");
+            $("#companyName").removeClass("is-invalid").addClass("is-valid");
         }
 
         // check whether the website format is correct or not
@@ -127,47 +144,90 @@ $(function () {
         }
 
         if (!error) {
-            // check whether the NIF is already registered or not
-            $.ajax({
-                url: `/api/findByNIF/${formProps.NIF}`,
-                method: 'GET',
-                success: function(response) {
-                    if (response.data) {
-                        $('#NIF').removeClass('is-valid').addClass('is-invalid');
-                        $('#NIFFeedback').text('A company with the specified NIF number already exists.');
-                    } else {
-                        // insert new company
-                        console.log(formProps);
-                        $.ajax({
-                            url: '/api/insertCompany',
-                            method: 'POST',
-                            data: formProps,
-                            success: function(response) {
-                                notify('success', 'Company added succesfully');
-
-                                // clear form styles/values
-                                $('#newCompanyForm input').each(function() {
-                                    $(this).removeClass("is-valid is-invalid");
-                                });
-
-                                // close modal
-                                $('#newCompanyModal').modal('hide');
-
-                                // refresh table
-                                companiesTable.clear().draw();
-                            },
-                            error: function(error) {
-                                notify('danger', 'Error while adding the new company');
-                                console.log('Error on AJAX request: ', error.responseText);
-                            }
-                        });
+            if (action === "create") {
+                // check whether the NIF is already registered or not
+                $.ajax({
+                    url: `/api/findByNIF/${formProps.NIF}`,
+                    method: "GET",
+                    success: function(response) {
+                        if (response.data) {
+                            $("#NIF").removeClass("is-valid").addClass("is-invalid");
+                            $("#NIFFeedback").text("A company with the specified NIF number already exists.");
+                        } else {
+                            // insert new company
+                            console.log(formProps);
+                            $.ajax({
+                                url: "/api/insertCompany",
+                                method: 'POST',
+                                data: formProps,
+                                success: function(response) {
+                                    notify("success", "Company added successfully");
+                                    closeCompanyModal(companiesTable);
+                                },
+                                error: function(error) {
+                                    notify("danger", "Error while adding the new company");
+                                    console.log("Error on AJAX request: ", error.responseText);
+                                }
+                            });
+                        }
+                    },
+                    error: function(error) {
+                        notify("danger", `Error while finding a company with NIF ${formProps.NIF}`);
+                        console.log("Error on AJAX request: ", error.responseText);
                     }
-                },
-                error: function(error) {
-                    notify('danger', `Error while finding a company with NIF ${formProps.NIF}`);
-                    console.log('Error on AJAX request: ', error.responseText);
-                }
-            });
+                });
+            } else { // edit company data
+                // update data
+                formProps._id = $("#companyModal").attr("data-id");
+
+                $.ajax({
+                    url: "/api/updateCompany",
+                    method: "PUT",
+                    data: formProps,
+                    success: function(response) {
+                        notify("success", "Company updated successfully");
+                        closeCompanyModal(companiesTable);
+                    },
+                    error: function(error) {
+                        notify("danger", "Error while updating company data");
+                        console.log("Error on AJAX request: ", error.responseText);
+                    }
+                });
+            }
         }
-    })
+    });
+
+    // change modal data base on clicked button (add company or edit company)
+    $("#companyModal").on("show.bs.modal", function(event) {
+        let action = $(event.relatedTarget).data("action");
+        const title = $("#companyModalTitle");
+        const submitBtn = $("#saveCompanyBtn");
+
+        console.log("Theaction: " + action);
+
+        if (action === "create") {
+            $(this).data("action", "create");
+            $(this).removeAttr("data-id");
+
+            title.text("Add company");
+            submitBtn.text("Add company");
+            $("#NIF").val("");
+            $("#companyName").val("");
+            $("#provinceSelect").val("");
+            $("#website").val("");
+        } else { // edit company data
+            const row = $(event.relatedTarget).closest('tr');
+            const rowData = companiesTable.row(row).data();
+
+            $(this).data("action", "edit");         
+            $(this).attr("data-id", rowData._id);
+
+            title.text("Edit company");
+            submitBtn.text("Save changes");
+            $("#NIF").val(rowData.NIF);
+            $("#companyName").val(rowData.name);
+            $("#provinceSelect").val(rowData.province);
+            $("#website").val(rowData.website);
+        }
+    });
 });
