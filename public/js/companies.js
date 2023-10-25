@@ -1,16 +1,3 @@
-function closeCompanyModal(datatable) {
-    // clear form styles/values
-    $("#companyForm input").each(function() {
-        $(this).removeClass("is-valid is-invalid");
-    });
-
-    // close modal
-    $("#companyModal").modal("hide");
-
-    // refresh table
-    datatable.draw();
-}
-
 $(function () {
     /* Initialise companies DataTable */
     let companiesTable = $('#companiesTable').DataTable({
@@ -162,7 +149,12 @@ $(function () {
                                 data: formProps,
                                 success: function(response) {
                                     notify("success", "Company added successfully");
-                                    closeCompanyModal(companiesTable);
+
+                                    // close modal
+                                    $("#companyModal").modal("hide");
+
+                                    // refresh table
+                                    datatable.draw();
                                 },
                                 error: function(error) {
                                     notify("danger", "Error while adding the new company");
@@ -186,11 +178,21 @@ $(function () {
                     data: formProps,
                     success: function(response) {
                         notify("success", "Company updated successfully");
-                        closeCompanyModal(companiesTable);
+
+                        // close modal
+                        $("#companyModal").modal("hide");
+
+                        // refresh table
+                        datatable.draw();
                     },
                     error: function(error) {
-                        notify("danger", "Error while updating company data");
-                        console.log("Error on AJAX request: ", error.responseText);
+                        if (error.status === 409) { // NIF already exists
+                            $("#NIF").removeClass("is-valid").addClass("is-invalid");
+                            $("#NIFFeedback").text("A company with the specified NIF number already exists.");
+                        } else {
+                            notify("danger", "Error while updating company data");
+                            console.log("Error on AJAX request: ", error.responseText);
+                        }
                     }
                 });
             }
@@ -230,4 +232,13 @@ $(function () {
             $("#website").val(rowData.website);
         }
     });
+
+    // reset modal styles when closing
+    $("#companyModal").on("hidden.bs.modal", function () {
+        // clear form styles/values
+        $("#companyForm input").each(function() {
+            $(this).removeClass("is-valid is-invalid");
+        });
+    });
+    
 });

@@ -98,14 +98,19 @@ const updateCompany = async (req, res) => {
     const company = req.body;
 
     try {
-        await Company.findOneAndUpdate({_id: company._id}, {
-            NIF: company.NIF,
-            name: company.name,
-            province: company.province,
-            website: company.website
-        });
+        const c = await Company.findOne({NIF: company.NIF});
+        if (!c || c._id == company._id) {
+            await Company.findOneAndUpdate({_id: company._id}, {
+                NIF: company.NIF,
+                name: company.name,
+                province: company.province,
+                website: company.website
+            });
+            res.json({ success: true, message: `company with _id ${company._id} updated successfully` });
+        } else { // there is another company with same NIF => abort
+            res.status(409).json({ success: false, message: "Error when updating the company: another company with the same NIF already exists."});
+        }
 
-        res.json({ success: true, message: `company with _id ${company._id} updated successfully` });
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: false, message: `Error while updating company with _id ${company._id}` });
