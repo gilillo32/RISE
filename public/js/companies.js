@@ -21,7 +21,12 @@ $(function () {
             {data: 'NIF', defaultContent: ''},
             {data: 'name', defaultContent: ''},
             {data: 'province', defaultContent: ''},
-            {data: 'website', defaultContent: ''},
+            {
+                data: 'website',
+                render: function(data) {
+                    return `<a href="//${data}">${data}</a>`;
+                },
+                defaultContent: ''},
             {data: 'lastScanDate', defaultContent: ''},
             {
                 data: 'vulnerabilities', 
