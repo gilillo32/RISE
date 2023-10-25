@@ -288,3 +288,28 @@ select {
     border-radius: .25rem;
     cursor: pointer;
 }
+
+.province-feedback-wrapper {
+    position: relative;
+}
+
+.invalid-province-feedback {
+    position: absolute;
+    display: none;
+    margin-top: -2.2rem;
+    color: #dc4c64;
+    font-size: .875rem;
+    transition: all .3s;
+}
+
+.invalid-province-feedback-active {
+    margin-top: -1.2rem;
+}
+
+.select-valid {
+    border: 1px solid #14a44d;
+}
+
+.select-invalid {
+    border: 1px solid #dc4c64;
+}

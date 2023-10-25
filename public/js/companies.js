@@ -91,8 +91,6 @@ $(function () {
     /* Add new company form validation and request */
     $("#companyForm").on('submit', function(event) {
         let action = $("#companyModal").data("action");
-        console.log($("#companyModal"));
-        console.log(action);
 
         event.preventDefault();
 
@@ -119,6 +117,27 @@ $(function () {
             $("#companyName").removeClass("is-invalid").addClass("is-valid");
         }
 
+        // check whether a province has been selected or not
+        console.log(formProps.province);
+        if (formProps.province) {
+            $(".invalid-province-feedback-active")
+                .css("display", "none")
+                .removeClass("invalid-province-feedback-active");
+            $("#provinceSelect")
+                .removeClass("select-invalid")
+                .addClass("select-valid");
+        } else {
+            $(".invalid-province-feedback")
+                .css("display", "block")
+                .addClass("invalid-province-feedback-active");
+            $("#provinceSelect")
+                .removeClass("select-valid")
+                .addClass("select-invalid");
+            setTimeout(function() { // needed for switch from display none to block
+                $(".invalid-province-feedback").addClass("invalid-province-feedback-active");
+            }, 10);
+        }
+
         // check whether the website format is correct or not
         const urlPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
         if (!urlPattern.test(formProps.website)) {
@@ -142,7 +161,6 @@ $(function () {
                             $("#NIFFeedback").text("A company with the specified NIF number already exists.");
                         } else {
                             // insert new company
-                            console.log(formProps);
                             $.ajax({
                                 url: "/api/insertCompany",
                                 method: 'POST',
@@ -205,8 +223,6 @@ $(function () {
         const title = $("#companyModalTitle");
         const submitBtn = $("#saveCompanyBtn");
 
-        console.log("Theaction: " + action);
-
         if (action === "create") {
             $(this).data("action", "create");
             $(this).removeAttr("data-id");
@@ -239,6 +255,9 @@ $(function () {
         $("#companyForm input").each(function() {
             $(this).removeClass("is-valid is-invalid");
         });
+
+        $("#provinceSelect").removeClass("select-valid select-invalid");
+        $(".invalid-province-feedback").css("display", "none").removeClass("invalid-province-feedback-active");
     });
     
 });
