@@ -127,9 +127,7 @@ $(function () {
                 .removeClass("select-invalid")
                 .addClass("select-valid");
         } else {
-            $(".invalid-province-feedback")
-                .css("display", "block")
-                .addClass("invalid-province-feedback-active");
+            $(".invalid-province-feedback").css("display", "block");
             $("#provinceSelect")
                 .removeClass("select-valid")
                 .addClass("select-invalid");
