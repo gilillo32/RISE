@@ -1,6 +1,13 @@
 <div class="companies-table-wrapper shadow-2">
     <div class="more-actions-wrapper d-flex justify-content-end mb-3">
-        <button type="button" class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#companyModal" data-action="create">Add company</button>
+        <button type="button" class="btn btn-primary me-2" data-mdb-toggle="modal" data-mdb-target="#exportCompanyModal">
+            <i class="fa-solid fa-file-export me-1"></i>
+            Export
+        </button>
+        <button type="button" class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#companyModal" data-action="create">
+            <i class="fa-solid fa-plus me-1"></i>
+            Add company
+        </button>
     </div>
     <table id="companiesTable" class="table table-hover">
         <thead>
@@ -19,7 +26,7 @@
     </table>
 </div>
 
-<div id="companyModal" class="add-company-modal modal fade new-company-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-action="create">
+<div id="companyModal" class="add-company-modal modal fade new-company-modal" tabindex="-1" aria-labelledby="companyModal" aria-hidden="true" data-action="create">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-body d-flex">
@@ -69,4 +76,54 @@
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal top fade" id="exportCompanyModal" tabindex="-1" aria-labelledby="exportCompanyModal" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Export companies</h5>
+                <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div id="exportFormat" class="btn-group mb-4">
+                        <input type="radio" class="btn-check" name="exportFormat" value="csv" id="csv" autocomplete="off" />
+                        <label class="btn btn-secondary" for="csv">csv</label>
+                        
+                        <input type="radio" class="btn-check" name="exportFormat" value="json" id="json" autocomplete="off" checked />
+                        <label class="btn btn-secondary" for="json">json</label>
+                        
+                        <input type="radio" class="btn-check" name="exportFormat" value="txt" id="txt" autocomplete="off" />
+                        <label class="btn btn-secondary" for="txt">txt</label>
+                    </div>
+        
+                    <div class="text-start px-4">
+                        <div id="exportDataAmountRadio">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="exportDataAmount" value="page" id="exportCurrentPage"/>
+                                <label class="form-check-label" for="exportCurrentPage"> Export current page</label>
+                            </div>
+        
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="exportDataAmount" value="all" id="exportAllFiltered" checked/>
+                                <label class="form-check-label" for="exportAllFiltered"> Exports all filtered results</label>
+                            </div>
+                        </div>
+
+                        <div class="input-group mt-4">
+                            <input type="text" class="form-control" placeholder="Filename" value="companies" aria-label="Filename" aria-describedby="extension" />
+                            <span class="input-group-text" id="extension">.json</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Cancel</button>
+            <button id="confirmExportCompanies" type="button" class="btn btn-primary">Export</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src='js/companies.js'></script>

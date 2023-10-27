@@ -170,7 +170,7 @@ $(function () {
                                     $("#companyModal").modal("hide");
 
                                     // refresh table
-                                    datatable.draw();
+                                    companiesTable.draw();
                                 },
                                 error: function(error) {
                                     notify("danger", "Error while adding the new company");
@@ -199,7 +199,7 @@ $(function () {
                         $("#companyModal").modal("hide");
 
                         // refresh table
-                        datatable.draw();
+                        companiesTable.draw();
                     },
                     error: function(error) {
                         if (error.status === 409) { // NIF already exists
@@ -256,6 +256,53 @@ $(function () {
 
         $("#provinceSelect").removeClass("select-valid select-invalid");
         $(".invalid-province-feedback").css("display", "none").removeClass("invalid-province-feedback-active");
+    });
+
+    // update filename extension based on radio button click
+    $('#exportFormat input:radio').on("click", function() {
+        let extension = $(this).val();
+        $("#extension").text("." + extension);
+    });
+
+    $("#confirmExportCompanies").on("click", function(event) {
+
+        let format = $('input[name="exportFormat"]:checked').val();
+        let dataToExport = $('input[name="exportDataAmount"]:checked').val();
+        let data;
+
+        
+
+        if (dataToExport === "page") {
+
+        } else if (dataToExport === "all") {
+            data = companiesTable.rows().data().toArray();
+        }
+
+        console.log(data);
+
+        switch (format) {
+            case "csv":
+                alert("Not available yet");
+                break;
+            case "json":
+                console.log("sies");
+                let jsonData = JSON.stringify(data);
+
+                // create temporal anchor for the download
+                let a = document.createElement("a");
+                a.href = "data:application/json;charset=utf-8," + encodeURIComponent(jsonData);
+                a.download = "companies.json";
+                a.style.display = "none";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                break;
+            case "txt":
+                alert("Not available yet")
+                break;
+            default:
+                break;
+        }
     });
     
 });
