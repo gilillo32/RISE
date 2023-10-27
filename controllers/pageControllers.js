@@ -1,5 +1,6 @@
 /* MongoDB models */
 const Company = require("../models/company");
+const columnNames =  ["NIF", "name", "province", "website", "lastScanDate", "vulnerabilties"];
 
 const overviewView = (_, res) => {
     res.render('overview', {activeLink: 'overview'});
@@ -9,12 +10,44 @@ const companiesView = async (_, res) => {
     res.render('companies', {activeLink: 'companies'});
 }
 
+
+/* Send all information abount companies that match filter */
+const getCompanies = async (req, res) => {
+    const searchFilter = req.query.filter || '';
+
+    try {
+        /* Filtering */
+        const filter = {};
+        if (searchFilter) {       
+            filter.$or = [
+                { NIF: { $regex: searchFilter, $options: 'i'} },
+                { name: { $regex: searchFilter, $options: 'i' } },
+                { province: { $regex: searchFilter, $options: 'i' } },
+                { website: { $regex: searchFilter, $options: 'i' } },
+                { vulnerabilities: { $regex: searchFilter, $options: 'i' } },
+            ];
+        }
+    
+        /* Sorting */
+        const sort = req.query.sort.map(item => 
+            [columnNames[item[0]], item[1] === 'asc' ? 1 : -1]
+        );
+    
+        const data = await Company.find(filter).sort(sort).exec();
+    
+        res.json({ data: data });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error obtaining company's data");
+    }
+}
+
 /* Send pagged data about companies */
-const companiesData = async (req, res) => {
+const getCompaniesPage = async (req, res) => {
     const currentPage = parseInt(req.query.page) || 1;
     const rowsPerPage = parseInt(req.query.rowsPerPage) || 10;
     const skip = (currentPage - 1) * rowsPerPage;
-    const searchFilter = req.query.search.value || '';
+    const searchFilter = req.query.filter || '';
 
     try {
         /* Filtering */
@@ -30,8 +63,7 @@ const companiesData = async (req, res) => {
         }
 
         /* Sorting */
-        const columnNames =  ["NIF", "name", "province", "website", "lastScanDate", "vulnerabilties"];
-        const sort = req.query.order.map(item => ([
+        const sort = req.query.sort.map(item => ([
             columnNames[item.column], item.dir === 'asc' ? 1 : -1
         ]));
         
@@ -42,16 +74,15 @@ const companiesData = async (req, res) => {
         .sort(sort)
         .exec();
 
-        // Formatear campos de tipo fecha a 'dd-mm-aaaa'
+        // format dates to 'dd-mm-aaaa'
         for (let i = 0; i < data.length; i++) {
-            data[i].javi = "a";
             if (data[i].lastScanDate instanceof Date) {
                 /* cannot assign string to a date field, so a new key is created */
                 data[i].formattedDate = data[i].lastScanDate.toLocaleDateString('es-ES'); // 'es-ES' para el formato 'dd-mm-aaaa'
             }
         }
 
-        const totalDocs = await Company.countDocuments();
+        const totalDocs = await Company.countDocuments(filter);
     
         res.json({
             data: data,
@@ -60,7 +91,7 @@ const companiesData = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Error obtaining paginated data')
+        res.status(500).send("Error obtaining paginated company's data");
     }
 }
 
@@ -135,7 +166,8 @@ module.exports = {
     companiesView,
 
     // API
-    companiesData,
+    getCompanies,
+    getCompaniesPage,
     findByNIF,
     insertCompany,
     updateCompany,

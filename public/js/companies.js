@@ -8,12 +8,12 @@ $(function () {
         processing: true,
         serverSide: true,
         ajax: {
-            url: '/api/getCompanies',
+            url: '/api/getCompaniesPage',
             data: function (data) {
                 data.page = data.start / data.length + 1;
                 data.rowsPerPage = data.length;
-                data.search.value = data.search.value;
-                data.order = data.order;
+                data.filter = data.search.value;
+                data.sort = data.order;
             },
             dataSrc: 'data'
         },
@@ -118,7 +118,6 @@ $(function () {
         }
 
         // check whether a province has been selected or not
-        console.log(formProps.province);
         if (formProps.province) {
             $(".invalid-province-feedback-active")
                 .css("display", "none")
@@ -264,28 +263,37 @@ $(function () {
         $("#extension").text("." + extension);
     });
 
-    $("#confirmExportCompanies").on("click", function(event) {
+    $("#confirmExportCompanies").on("click", async function(event) {
 
         let format = $('input[name="exportFormat"]:checked').val();
         let dataToExport = $('input[name="exportDataAmount"]:checked').val();
-        let data;
-
-        
 
         if (dataToExport === "page") {
-
-        } else if (dataToExport === "all") {
             data = companiesTable.rows().data().toArray();
-        }
+        } else if (dataToExport === "all") {
+            try {
+                let response = await $.ajax({
+                    url: '/api/getCompanies',
+                    method: 'GET',
+                    data: {
+                        filter: companiesTable.search(),
+                        sort: companiesTable.order()
+                    }
+                });
 
-        console.log(data);
+                data = response;
+            } catch (error) {
+                notify("danger", "Error while retrieving information about the companies");
+                console.log("Error on AJAX request: ", error.responseText);
+                return;
+            }
+        }
 
         switch (format) {
             case "csv":
                 alert("Not available yet");
                 break;
             case "json":
-                console.log("sies");
                 let jsonData = JSON.stringify(data);
 
                 // create temporal anchor for the download
