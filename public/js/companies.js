@@ -267,7 +267,7 @@ $(function () {
 
         let format = $('input[name="exportFormat"]:checked').val();
         let dataToExport = $('input[name="exportDataAmount"]:checked').val();
-        let data, exportData;
+        let data, exportData, allKeys, headerRow, bodyRows;
 
         // select data
         if (dataToExport === "page") {
@@ -294,25 +294,35 @@ $(function () {
         // format
         switch (format) {
             case "csv":
-                let allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
+                allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
 
-                const headerRow = allKeys.join(',');
+                headerRow = allKeys.join(',');
                 
-                const csvRows = data.map(obj => {
+                bodyRows = data.map(obj => {
                     return allKeys.map(key => {
                         return obj[key] || ''; // if key does not exist, simply write empty string
                     }).join(',');
-                });
-                     
+                });          
 
-                exportData = [headerRow, ...csvRows].join('\n');
-                console.log(exportData);
+                exportData = [headerRow, ...bodyRows].join('\n');
                 break;
+
             case "json":
                 exportData = JSON.stringify(data);
                 break;
+
             case "txt":
-                alert("Not available yet");
+                allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
+
+                headerRow = allKeys.join('\t');
+                
+                bodyRows = data.map(obj => {
+                    return allKeys.map(key => {
+                        return obj[key] || ''; // if key does not exist, simply write empty string
+                    }).join('\t');
+                });          
+
+                exportData = [headerRow, ...bodyRows].join('\n');
             default:
                 break;
         }
