@@ -267,7 +267,9 @@ $(function () {
 
         let format = $('input[name="exportFormat"]:checked').val();
         let dataToExport = $('input[name="exportDataAmount"]:checked').val();
+        let data, exportData;
 
+        // select data
         if (dataToExport === "page") {
             data = companiesTable.rows().data().toArray();
         } else if (dataToExport === "all") {
@@ -281,7 +283,7 @@ $(function () {
                     }
                 });
 
-                data = response;
+                data = response.data;
             } catch (error) {
                 notify("danger", "Error while retrieving information about the companies");
                 console.error("Error on AJAX request: ", error.responseText);
@@ -289,28 +291,40 @@ $(function () {
             }
         }
 
+        // format
         switch (format) {
             case "csv":
-                alert("Not available yet");
+                let allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
+
+                const headerRow = allKeys.join(',');
+                
+                const csvRows = data.map(obj => {
+                    return allKeys.map(key => {
+                        return obj[key] || ''; // if key does not exist, simply write empty string
+                    }).join(',');
+                });
+                     
+
+                exportData = [headerRow, ...csvRows].join('\n');
+                console.log(exportData);
                 break;
             case "json":
-                let jsonData = JSON.stringify(data);
-
-                // create temporal anchor for the download
-                let a = document.createElement("a");
-                a.href = "data:application/json;charset=utf-8," + encodeURIComponent(jsonData);
-                a.download = "companies.json";
-                a.style.display = "none";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+                exportData = JSON.stringify(data);
                 break;
             case "txt":
-                alert("Not available yet")
-                break;
+                alert("Not available yet");
             default:
                 break;
         }
+
+        // create temporal anchor for the download
+        let a = document.createElement("a");
+        a.href = "data:application/json;charset=utf-8," + encodeURIComponent(exportData);
+        a.download =  $("#filename").val() + "." + format;
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     });
     
 });
