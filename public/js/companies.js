@@ -83,7 +83,7 @@ $(function () {
             },
             error: function(error) {
                 notify("danger", "Error while deleting company");
-                console.log('Error on AJAX request: ', error.responseText);
+                console.error('Error on AJAX request: ', error.responseText);
             }
         });
     });
@@ -173,14 +173,14 @@ $(function () {
                                 },
                                 error: function(error) {
                                     notify("danger", "Error while adding the new company");
-                                    console.log("Error on AJAX request: ", error.responseText);
+                                    console.error("Error on AJAX request: ", error.responseText);
                                 }
                             });
                         }
                     },
                     error: function(error) {
                         notify("danger", `Error while finding a company with NIF ${formProps.NIF}`);
-                        console.log("Error on AJAX request: ", error.responseText);
+                        console.error("Error on AJAX request: ", error.responseText);
                     }
                 });
             } else { // edit company data
@@ -206,7 +206,7 @@ $(function () {
                             $("#NIFFeedback").text("A company with the specified NIF number already exists.");
                         } else {
                             notify("danger", "Error while updating company data");
-                            console.log("Error on AJAX request: ", error.responseText);
+                            console.error("Error on AJAX request: ", error.responseText);
                         }
                     }
                 });
@@ -284,7 +284,7 @@ $(function () {
                 data = response;
             } catch (error) {
                 notify("danger", "Error while retrieving information about the companies");
-                console.log("Error on AJAX request: ", error.responseText);
+                console.error("Error on AJAX request: ", error.responseText);
                 return;
             }
         }
