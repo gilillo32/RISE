@@ -336,5 +336,61 @@ $(function () {
         a.click();
         document.body.removeChild(a);
     });
+
+    $("#dropzoneTable").on("dragenter", function(event) {
+        event.preventDefault();  
+        event.stopPropagation();
+        $(this).removeClass('dragging');
+    });
+
+    $("#dropzoneTable").on("dragover", function(event) {
+        event.preventDefault();  
+        event.stopPropagation();
+        $(this).addClass('dragging');
+    });
+    
+    $("#dropzoneTable").on("drop", function(event) {
+        event.preventDefault();  
+        event.stopPropagation();
+
+        var importData = [];
+        let columns = ["Código NIF", "Nombre", "Localidad", "País"];
+        let files = event.originalEvent.dataTransfer.files;
+    
+        for (let i = 0; i < files.length; i++) {
+            let file = files[i];
+
+            let reader = new FileReader();
+            reader.onload = function(event) {
+                let content = event.target.result;
+                let lines = content.split('\n');
+
+                if (lines.length < 2) {
+                    alert("File does not contain data rows");
+                    return;
+                }
+
+                let headers = lines[0].split('\t').map(header => header.replace(/"/g, ""));
+                let columnIndexes = columns.map(column => headers.indexOf(column));
+                
+                if (columnIndexes.includes(-1)) {
+                    alert("File does not contain all the required columns");
+                    return;
+                }
+
+                for (let j = 1; j < lines.length; j++) {
+                    let entry = lines[j].split("\t").map(value => value.replace(/"/g, ""));
+
+                    let filteredEntry = {};
+                    for (let k = 0; k < columnIndexes.length; k++) {
+                        filteredEntry[columns[k]] = entry[columnIndexes[k]] || '';
+                    }
+
+                    importData.push(filteredEntry);
+                }
+            }
+            reader.readAsText(file);
+        }
+    });
     
 });
