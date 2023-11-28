@@ -6,8 +6,21 @@ const path = require('path');
 const mongoose = require('mongoose');
 const router = require('./routes/router');
 const bodyParser = require('body-parser');
+const liveReload = require("livereload");
+const connectLiveReload = require("connect-livereload");
+
+var liveReloadServer = liveReload.createServer();
+liveReloadServer.watch();
+liveReloadServer.refresh("/");
+liveReloadServer.server.once("connection", () => {
+   setTimeout(() => {
+      liveReloadServer.refresh("/");
+   }, 100);
+});
 
 const app = express();
+
+app.use(connectLiveReload());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -28,7 +41,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(router.routes);
 
 // Reference Bootstrap and MDB files from /css and /js
-
 app.use("/css", express.static(path.join(__dirname, "node_modules/mdb-ui-kit/css")));
 app.use("/js", express.static(path.join(__dirname, "node_modules/bootstrap/dist/js")));
 app.use("/js", express.static(path.join(__dirname, "node_modules/mdb-ui-kit/js")));

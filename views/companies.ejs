@@ -32,39 +32,40 @@
     </table>
 </div>
 
+<!-- Import company modal -->
 <div id="importCompanyModal" class="add-company-modal modal fade" tabindex="-1" aria-labelledby="importModal" aria-hidden="true" data-action="create">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-body">
-                <div class="d-flex justify-content-center">
-                    <button class="btn btn-secondary">Select Files</button>
-                    <button class="btn btn-danger">Delete All</button>
-                </div>
-
-                <table id="dropzoneTable" class="table" ondrop="">
-                    <tr>
-                        <th>NIF</th>
-                        <th>Name</th>
-                        <th>Province</th>
-                        <th>Website</th>
-                    </tr>
-                </table>
-                <div class="d-flex justify-content-between">
-                    <span>sub_x/x rows uploaded</span>
+                <div id="dropZone" class="d-flex drop-zone justify-content-between align-items-center">
                     <div>
-                        <span>0 warnings</span>
-                        <span>0 errors</span>
+                        <p>
+                            <i class="fa-solid fa-upload me-2"></i>
+                            <span>Drag and drop files here or select files</span>
+                        </p>
+                        <small class="allowed-extensions disabled">Accepted file types: JSON, CSV, TXT</small>
+                    </div>
+
+                    <div>
+                        <input type="file" id="importFileInput" class="import-file-input" multiple>
+                        <button type="button" id="importFileBtn" class="btn btn-outline-primary" data-mdb-ripple-init data-mdb-ripple-color="dark">Select files</button>
+                        <button id="uploadImport" type="button" class="btn btn-primary" data-mdb-ripple-init data-mdb-ripple-color="dark">Upload</button>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-primary">Upload</button>
+                <br>
+
+                <div>
+                    <p><span id="filesUploaded">0</span> of <span id="filesToUpload">0</span> files uploaded</p>
+                    <ul id="fileList" class="file-list">
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Add company modal -->
 <div id="companyModal" class="add-company-modal modal fade new-company-modal" tabindex="-1" aria-labelledby="companyModal" aria-hidden="true" data-action="create">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -79,18 +80,18 @@
                     <form id="companyForm" class="add-company-form" novalidate>
                         <!-- NIF input -->
                         <div class="form-outline mb-4">
-                          <input type="text" id="NIF" class="form-control" name="NIF" required />
-                          <label class="form-label" for="NIF">NIF</label>
-                          <div id="NIFFeedback" class="invalid-feedback"></div>
+                            <input type="text" id="NIF" class="form-control" name="NIF" required />
+                            <label class="form-label" for="NIF">NIF</label>
+                            <div id="NIFFeedback" class="invalid-feedback"></div>
                         </div>
-                      
+
                         <!-- Name input -->
                         <div class="form-outline mb-4">
-                          <input type="text" id="companyName" class="form-control" name="name" required />
-                          <label class="form-label" for="name">Name</label>
-                          <div class="invalid-feedback">Cannot be empty</div>
+                            <input type="text" id="companyName" class="form-control" name="name" required />
+                            <label class="form-label" for="name">Name</label>
+                            <div class="invalid-feedback">Cannot be empty</div>
                         </div>
-                         
+
                         <!-- Province select -->
                         <select id="provinceSelect" name="province" class="mb-4">
                             <option value="" disabled selected>Select a province</option>
@@ -103,7 +104,8 @@
                         <div class="form-outline mb-4">
                             <input type="text" id="website" class="form-control" name="website" required />
                             <label class="form-label" for="website">Website</label>
-                            <div class="invalid-feedback">Please use correct format (e.g. example.com or www.example.com).</div>
+                            <div class="invalid-feedback">Please use correct format (e.g. example.com or
+                                www.example.com).</div>
                         </div>
                         <div class="d-flex justify-content-end">
                             <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Cancel</button>
@@ -116,7 +118,7 @@
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Export company modal -->
 <div class="modal top fade" id="exportCompanyModal" tabindex="-1" aria-labelledby="exportCompanyModal" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
@@ -129,24 +131,25 @@
                     <div id="exportFormat" class="btn-group mb-4">
                         <input type="radio" class="btn-check" name="exportFormat" value="csv" id="csv" autocomplete="off" />
                         <label class="btn btn-secondary" for="csv">csv</label>
-                        
+
                         <input type="radio" class="btn-check" name="exportFormat" value="json" id="json" autocomplete="off" checked />
                         <label class="btn btn-secondary" for="json">json</label>
-                        
+
                         <input type="radio" class="btn-check" name="exportFormat" value="txt" id="txt" autocomplete="off" />
                         <label class="btn btn-secondary" for="txt">txt (TAB)</label>
                     </div>
-        
+
                     <div class="text-start px-4">
                         <div id="exportDataAmountRadio">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="exportDataAmount" value="page" id="exportCurrentPage"/>
+                                <input class="form-check-input" type="radio" name="exportDataAmount" value="page" id="exportCurrentPage" />
                                 <label class="form-check-label" for="exportCurrentPage"> Export current page</label>
                             </div>
-        
+
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="exportDataAmount" value="all" id="exportAllFiltered" checked/>
-                                <label class="form-check-label" for="exportAllFiltered"> Exports all filtered results</label>
+                                <input class="form-check-input" type="radio" name="exportDataAmount" value="all" id="exportAllFiltered" checked />
+                                <label class="form-check-label" for="exportAllFiltered"> Exports all filtered
+                                    results</label>
                             </div>
                         </div>
 
@@ -158,8 +161,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Cancel</button>
-            <button id="confirmExportCompanies" type="button" class="btn btn-primary">Export</button>
+                <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Cancel</button>
+                <button id="confirmExportCompanies" type="button" class="btn btn-primary">Export</button>
             </div>
         </div>
     </div>

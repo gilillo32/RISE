@@ -4,6 +4,15 @@ body {
     background-color: #f3f3f3;
 }
 
+.disabled {
+    color: #99a3a4;
+}
+
+.progress {
+    height: 20px;
+    background-color: rgba(52, 152, 219, .3);
+}
+
 .login-form {
     position: absolute;
     width: 340px;
@@ -58,11 +67,11 @@ body {
 .sidebar ul li a {
     display: block;
     padding: 15px 30px;
-    color: rgba(255,255,255,.6);
-    border-bottom: 1px solid rgba(255,255,255,.1);
+    color: rgba(255, 255, 255, .6);
+    border-bottom: 1px solid rgba(255, 255, 255, .1);
 }
 
-.sidebar ul li.active > a {
+.sidebar ul li.active>a {
     color: #fff;
 }
 
@@ -80,7 +89,8 @@ body {
     padding: 1.8rem;
 }
 
-.table th, table td {
+.table th,
+table td {
     vertical-align: middle;
 }
 
@@ -103,10 +113,10 @@ body {
 /* Notifications */
 .toast-body {
     display: flex;
-    align-items: center;    
+    align-items: center;
 }
 
-.toast-body > i {
+.toast-body>i {
     font-size: 2em;
     margin-right: 1rem;
 }
@@ -122,7 +132,7 @@ body {
     border-radius: 0.5rem 0 0 0.5rem;
 }
 
-.toast-body > i {
+.toast-body>i {
     font-size: 2em;
     margin-right: 1rem;
 }
@@ -143,14 +153,14 @@ body {
     flex: 2;
 }
 
-.company-modal-header, .add-company-form {
+.company-modal-header,
+.add-company-form {
     padding: 1rem 1rem .7rem 1rem;
 }
 
 select {
     width: 100%;
     padding: .5rem .75rem;
-    color:#4f4f4f;
     background: transparent;
     border: 1px solid #bdbdbd;
     border-radius: .25rem;
@@ -180,4 +190,27 @@ select {
 
 .select-invalid {
     border: 1px solid #dc4c64;
+}
+
+/* Import company modal */
+
+.add-company-modal .modal-body {
+    padding: 60px;
+}
+
+.drop-zone {
+    padding: 30px;
+    border: 2px dashed #ccd1d1;
+}
+
+.import-file-input {
+    display: none;
+}
+
+.allowed-extensions {
+    color: #99a3a4;
+}
+
+.file-list {
+    list-style: none;
 }

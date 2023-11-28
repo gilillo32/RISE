@@ -1,4 +1,170 @@
+const allowedExtensions = ["csv", "json", "txt"];
+let columns = ["NIF", "name", "province", "web"];
+const nifPattern = /^[A-Z]\d{8}$/;
+const urlPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
+
+function updatePreviewTable(data) {
+    $("#dropzoneTable > tbody").text("");
+
+    if (data.length == 0) {
+        $("#dropzoneTable > tbody").html("<tr><td class='text-center' colspan='100%'>Drop files here</td></tr>");
+    } else {
+        for (let l = 0; l < data.length; l++) {
+            let row = "<tr>";
+            for (let m = 0; m < columns.length; m++) {
+                row += "<td>" + data[l][columns[m]] + "</td>";
+            }
+
+            // add status column
+            row += "<td></td></tr>";
+            $("#dropzoneTable > tbody").append(row);
+        }
+    }
+}
+
+function appendFileElement(fileList, file) {
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    const fileSizeInKB = Math.round(file.size * 100 / 1024) / 100;
+    const index = fileList.indexOf(file);
+
+    // get file icon
+    switch (fileExtension) {
+        case "csv":
+            icon = "fa-file-csv";
+            break;
+
+        case "json":
+            icon = "fa-file";
+            break;
+
+        case "txt":
+            icon = "fa-file-lines";
+            break;
+
+        default:
+            icon = "fa-file";
+            break;
+    }
+
+    $("#fileList").append(`
+        <li class="d-flex file-wrapper mb-3">
+            <div class="flex-fill">
+                <div class="d-flex justify-content-between mb-3">
+                    <div>
+                        <i class="fa-solid ${icon}"></i>
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size disabled">${fileSizeInKB} KB</span>
+                    </div>
+                <div>
+                    <span class="percentage">0</span>%
+                </div>
+            </div>
+
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+
+            <div class="px-3">
+            <i class="remove-file fa-solid fa-circle-xmark"></i>
+            </div>
+        </li>
+
+        <hr>
+    `);
+
+    $('.remove-file').last().on("click", function () {
+        // remove from DOM
+        const parentli = $(this).closest("li");
+        parentli.next("hr").remove();
+        parentli.remove();
+
+        // remove from array of files
+        let index = fileList.map(item => item.name).indexOf(file.name);
+        fileList.splice(index, 1);
+    })
+}
+
+function prepareFiles(fileList, files) {
+    for (file of files) {
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+
+        if (!allowedExtensions.includes(fileExtension)) {
+            alert(`File ${file.name} not allowed. Allowed extensions: ${allowedExtensions.join(', ')}.`);
+            continue;
+        }
+
+        if (file.size > 1000000000) {
+            alert(`File ${file.name} exceeds the allowed maximum file size (1 GB)`);
+            continue;
+        }
+
+        fileList.push(file);
+        appendFileElement(fileList, file);
+    }
+}
+
+function updateProgressBar(progressBar, percentage) {
+    progressBar.css("width", percentage + "%");
+    progressBar.attr("aria-valuenow", percentage);
+}
+
+function uploadFiles(files) {
+    for (const [index, file] of files.entries()) {
+        const progressBar = $(`#fileList li:eq(${index})`).find(".progress-bar");
+        const formData = new FormData();
+        formData.append('file', file);
+
+        $.ajax({
+            url: 'api/importCompanyFile',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            xhr: function () {
+                const xhr = new window.XMLHttpRequest();
+
+                xhr.upload.addEventListener("progress", function (event) {
+                    if (event.lengthComputable) {
+                        const percentage = (event.loaded / event.total) * 100;
+                        updateProgressBar(progressBar, percentage);
+                    }
+                })
+
+                return xhr;
+            },
+            success: function (data) {
+                console.log(data);
+            },
+            error: function (error) {
+                console.error("Error in ajax request:", error.responseText);
+            }
+        })
+    }
+}
+
+function changeRowStatus(row, status, message = "") {
+    let icon;
+
+    switch (status) {
+        case "success":
+            icon = "check";
+            break;
+        case "danger":
+            icon = "xmark"
+            break;
+        default:
+            break;
+    }
+
+    // change row bg and icon
+    row.removeClass().addClass(`text-center row-${status}`);
+    row.find('td:last').html(`<i class="fa-solid fa-${icon} text-${status}"></i>`);
+}
+
 $(function () {
+    let fileList = [];
+
     /* Initialise companies DataTable */
     let companiesTable = $('#companiesTable').DataTable({
         paging: true,
@@ -18,19 +184,20 @@ $(function () {
             dataSrc: 'data'
         },
         columns: [
-            {data: 'NIF', defaultContent: ''},
-            {data: 'name', defaultContent: ''},
-            {data: 'province', defaultContent: ''},
+            { data: 'NIF', defaultContent: '' },
+            { data: 'name', defaultContent: '' },
+            { data: 'province', defaultContent: '' },
             {
                 data: 'website',
-                render: function(data) {
+                render: function (data) {
                     return `<a href="//${data}">${data}</a>`;
                 },
-                defaultContent: ''},
-            {data: 'lastScanDate', defaultContent: ''},
+                defaultContent: ''
+            },
+            { data: 'lastScanDate', defaultContent: '' },
             {
-                data: 'vulnerabilities', 
-                render: function(data) {
+                data: 'vulnerabilities',
+                render: function (data) {
                     if (data != null && Array.isArray(data)) {
                         return data.join(', ');
                     } else {
@@ -41,12 +208,12 @@ $(function () {
             },
             {
                 data: null,
-                render: function() {
+                render: function () {
                     return '<button type="button" class="btn btn-primary btn-floating" data-mdb-toggle="modal" data-mdb-target="#companyModal" data-action="edit">\
                                 <i class="fa-solid fa-pen"></i>\
                             </button>'+
-                            
-                            '<button type="button" class="btn btn-danger btn-floating btn-delete-company">\
+
+                        '<button type="button" class="btn btn-danger btn-floating btn-delete-company">\
                                 <i class="fa-solid fa-trash"></i>\
                             </button>\
                             '
@@ -57,7 +224,7 @@ $(function () {
     });
 
     /* Request provinces data for provinces select */
-    $.getJSON('json/provinces.json', function(data) {
+    $.getJSON('json/provinces.json', function (data) {
         var select = $('#provinceSelect');
 
         data.results.forEach(result => {
@@ -68,20 +235,20 @@ $(function () {
     });
 
     /* Delete company event */
-    $('#companiesTable').on('click', '.btn-delete-company', function() {
+    $('#companiesTable').on('click', '.btn-delete-company', function () {
         const row = $(this).closest('tr');
         const _id = companiesTable.row(row).data()._id;
 
         $.ajax({
             url: `/api/deleteCompany/${_id}`,
             method: 'DELETE',
-            success: function(response) {
+            success: function (response) {
                 // update table
                 companiesTable.row(row).remove().draw();
 
                 notify("success", "Company successfully deleted");
             },
-            error: function(error) {
+            error: function (error) {
                 notify("danger", "Error while deleting company");
                 console.error('Error on AJAX request: ', error.responseText);
             }
@@ -89,7 +256,7 @@ $(function () {
     });
 
     /* Add new company form validation and request */
-    $("#companyForm").on('submit', function(event) {
+    $("#companyForm").on('submit', function (event) {
         let action = $("#companyModal").data("action");
 
         event.preventDefault();
@@ -99,14 +266,13 @@ $(function () {
         let formProps = Object.fromEntries(formData);
 
         // check whether the NIF format is correct or not
-        const nifPattern = /^[A-Z]\d{8}$/;
-        if (!nifPattern.test(formProps.NIF)) {
-            $("#NIF").removeClass("is-valid").addClass("is-invalid"); 
-            $("#NIFFeedback").text("Please use correct format (e.g. A01234567).");
-            error = 1;
-        } else {
+        if (nifPattern.test(formProps.NIF)) {
             $("#NIFFeedback").text("");
             $("#NIF").removeClass("is-invalid").addClass("is-valid");
+        } else {
+            $("#NIF").removeClass("is-valid").addClass("is-invalid");
+            $("#NIFFeedback").text("Please use correct format (e.g. A01234567).");
+            error = 1;
         }
 
         // check whether the name is empty or not
@@ -130,20 +296,19 @@ $(function () {
             $("#provinceSelect")
                 .removeClass("select-valid")
                 .addClass("select-invalid");
-            setTimeout(function() { // needed for switch from display none to block
+            setTimeout(function () { // needed for switch from display none to block
                 $(".invalid-province-feedback").addClass("invalid-province-feedback-active");
             }, 10);
         }
 
         // check whether the website format is correct or not
-        const urlPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
-        if (!urlPattern.test(formProps.website)) {
+        if (urlPattern.test(formProps.website)) {
+            $("#website").removeClass("is-invalid");
+            $("#website").addClass("is-valid");
+        } else {
             $("#website").removeClass("is-valid");
             $("#website").addClass("is-invalid");
             error = 1;
-        } else {
-            $("#website").removeClass("is-invalid");
-            $("#website").addClass("is-valid");
         }
 
         if (!error) {
@@ -152,7 +317,7 @@ $(function () {
                 $.ajax({
                     url: `/api/findByNIF/${formProps.NIF}`,
                     method: "GET",
-                    success: function(response) {
+                    success: function (response) {
                         if (response.data) {
                             $("#NIF").removeClass("is-valid").addClass("is-invalid");
                             $("#NIFFeedback").text("A company with the specified NIF number already exists.");
@@ -162,7 +327,7 @@ $(function () {
                                 url: "/api/insertCompany",
                                 method: 'POST',
                                 data: formProps,
-                                success: function(response) {
+                                success: function (response) {
                                     notify("success", "Company added successfully");
 
                                     // close modal
@@ -171,14 +336,14 @@ $(function () {
                                     // refresh table
                                     companiesTable.draw();
                                 },
-                                error: function(error) {
+                                error: function (error) {
                                     notify("danger", "Error while adding the new company");
                                     console.error("Error on AJAX request: ", error.responseText);
                                 }
                             });
                         }
                     },
-                    error: function(error) {
+                    error: function (error) {
                         notify("danger", `Error while finding a company with NIF ${formProps.NIF}`);
                         console.error("Error on AJAX request: ", error.responseText);
                     }
@@ -191,7 +356,7 @@ $(function () {
                     url: "/api/updateCompany",
                     method: "PUT",
                     data: formProps,
-                    success: function(response) {
+                    success: function (response) {
                         notify("success", "Company updated successfully");
 
                         // close modal
@@ -200,7 +365,7 @@ $(function () {
                         // refresh table
                         companiesTable.draw();
                     },
-                    error: function(error) {
+                    error: function (error) {
                         if (error.status === 409) { // NIF already exists
                             $("#NIF").removeClass("is-valid").addClass("is-invalid");
                             $("#NIFFeedback").text("A company with the specified NIF number already exists.");
@@ -215,7 +380,7 @@ $(function () {
     });
 
     // change modal data base on clicked button (add company or edit company)
-    $("#companyModal").on("show.bs.modal", function(event) {
+    $("#companyModal").on("show.bs.modal", function (event) {
         let action = $(event.relatedTarget).data("action");
         const title = $("#companyModalTitle");
         const submitBtn = $("#saveCompanyBtn");
@@ -234,7 +399,7 @@ $(function () {
             const row = $(event.relatedTarget).closest('tr');
             const rowData = companiesTable.row(row).data();
 
-            $(this).data("action", "edit");         
+            $(this).data("action", "edit");
             $(this).attr("data-id", rowData._id);
 
             title.text("Edit company");
@@ -249,7 +414,7 @@ $(function () {
     // reset modal styles when closing
     $("#companyModal").on("hidden.bs.modal", function () {
         // clear form styles/values
-        $("#companyForm input").each(function() {
+        $("#companyForm input").each(function () {
             $(this).removeClass("is-valid is-invalid");
         });
 
@@ -258,12 +423,12 @@ $(function () {
     });
 
     // update filename extension based on radio button click
-    $('#exportFormat input:radio').on("click", function() {
+    $('#exportFormat input:radio').on("click", function () {
         let extension = $(this).val();
         $("#extension").text("." + extension);
     });
 
-    $("#confirmExportCompanies").on("click", async function(event) {
+    $("#confirmExportCompanies").on("click", async function (event) {
 
         let format = $('input[name="exportFormat"]:checked').val();
         let dataToExport = $('input[name="exportDataAmount"]:checked').val();
@@ -297,12 +462,12 @@ $(function () {
                 allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
 
                 headerRow = allKeys.join(',');
-                
+
                 bodyRows = data.map(obj => {
                     return allKeys.map(key => {
                         return obj[key] || ''; // if key does not exist, simply write empty string
                     }).join(',');
-                });          
+                });
 
                 exportData = [headerRow, ...bodyRows].join('\n');
                 break;
@@ -315,12 +480,12 @@ $(function () {
                 allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
 
                 headerRow = allKeys.join('\t');
-                
+
                 bodyRows = data.map(obj => {
                     return allKeys.map(key => {
                         return obj[key] || ''; // if key does not exist, simply write empty string
                     }).join('\t');
-                });          
+                });
 
                 exportData = [headerRow, ...bodyRows].join('\n');
             default:
@@ -330,67 +495,38 @@ $(function () {
         // create temporal anchor for the download
         let a = document.createElement("a");
         a.href = "data:application/json;charset=utf-8," + encodeURIComponent(exportData);
-        a.download =  $("#filename").val() + "." + format;
+        a.download = $("#filename").val() + "." + format;
         a.style.display = "none";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
     });
 
-    $("#dropzoneTable").on("dragenter", function(event) {
-        event.preventDefault();  
+    $("#dropZone").on("dragenter", function (event) {
+        event.preventDefault();
         event.stopPropagation();
-        $(this).removeClass('dragging');
     });
 
-    $("#dropzoneTable").on("dragover", function(event) {
-        event.preventDefault();  
+    $("#dropZone").on("dragover", function (event) {
+        event.preventDefault();
         event.stopPropagation();
-        $(this).addClass('dragging');
     });
-    
-    $("#dropzoneTable").on("drop", function(event) {
-        event.preventDefault();  
+
+    $("#dropZone").on("drop", function (event) {
+        event.preventDefault();
         event.stopPropagation();
-
-        var importData = [];
-        let columns = ["Código NIF", "Nombre", "Localidad", "País"];
-        let files = event.originalEvent.dataTransfer.files;
-    
-        for (let i = 0; i < files.length; i++) {
-            let file = files[i];
-
-            let reader = new FileReader();
-            reader.onload = function(event) {
-                let content = event.target.result;
-                let lines = content.split('\n');
-
-                if (lines.length < 2) {
-                    alert("File does not contain data rows");
-                    return;
-                }
-
-                let headers = lines[0].split('\t').map(header => header.replace(/"/g, ""));
-                let columnIndexes = columns.map(column => headers.indexOf(column));
-                
-                if (columnIndexes.includes(-1)) {
-                    alert("File does not contain all the required columns");
-                    return;
-                }
-
-                for (let j = 1; j < lines.length; j++) {
-                    let entry = lines[j].split("\t").map(value => value.replace(/"/g, ""));
-
-                    let filteredEntry = {};
-                    for (let k = 0; k < columnIndexes.length; k++) {
-                        filteredEntry[columns[k]] = entry[columnIndexes[k]] || '';
-                    }
-
-                    importData.push(filteredEntry);
-                }
-            }
-            reader.readAsText(file);
-        }
+        prepareFiles(fileList, event.originalEvent.dataTransfer.files);
     });
-    
+
+    $("#importFileBtn").on("click", function () {
+        $("#importFileInput").click();
+    });
+
+    $("#importFileInput").on("change", function () {
+        prepareFiles(fileList, this.files);
+    });
+
+    $("#uploadImport").on("click", function () {
+        uploadFiles(fileList);
+    });
 });
