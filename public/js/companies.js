@@ -18,19 +18,20 @@ $(function () {
             dataSrc: 'data'
         },
         columns: [
-            {data: 'NIF', defaultContent: ''},
-            {data: 'name', defaultContent: ''},
-            {data: 'province', defaultContent: ''},
+            { data: 'NIF', defaultContent: '' },
+            { data: 'name', defaultContent: '' },
+            { data: 'province', defaultContent: '' },
             {
                 data: 'website',
-                render: function(data) {
+                render: function (data) {
                     return `<a href="//${data}">${data}</a>`;
                 },
-                defaultContent: ''},
-            {data: 'lastScanDate', defaultContent: ''},
+                defaultContent: ''
+            },
+            { data: 'lastScanDate', defaultContent: '' },
             {
-                data: 'vulnerabilities', 
-                render: function(data) {
+                data: 'vulnerabilities',
+                render: function (data) {
                     if (data != null && Array.isArray(data)) {
                         return data.join(', ');
                     } else {
@@ -41,12 +42,12 @@ $(function () {
             },
             {
                 data: null,
-                render: function() {
+                render: function () {
                     return '<button type="button" class="btn btn-primary btn-floating" data-mdb-toggle="modal" data-mdb-target="#companyModal" data-action="edit">\
                                 <i class="fa-solid fa-pen"></i>\
                             </button>'+
-                            
-                            '<button type="button" class="btn btn-danger btn-floating btn-delete-company">\
+
+                        '<button type="button" class="btn btn-danger btn-floating btn-delete-company">\
                                 <i class="fa-solid fa-trash"></i>\
                             </button>\
                             '
@@ -57,7 +58,7 @@ $(function () {
     });
 
     /* Request provinces data for provinces select */
-    $.getJSON('json/provinces.json', function(data) {
+    $.getJSON('json/provinces.json', function (data) {
         var select = $('#provinceSelect');
 
         data.results.forEach(result => {
@@ -68,20 +69,20 @@ $(function () {
     });
 
     /* Delete company event */
-    $('#companiesTable').on('click', '.btn-delete-company', function() {
+    $('#companiesTable').on('click', '.btn-delete-company', function () {
         const row = $(this).closest('tr');
         const _id = companiesTable.row(row).data()._id;
 
         $.ajax({
             url: `/api/deleteCompany/${_id}`,
             method: 'DELETE',
-            success: function(response) {
+            success: function (response) {
                 // update table
                 companiesTable.row(row).remove().draw();
 
                 notify("success", "Company successfully deleted");
             },
-            error: function(error) {
+            error: function (error) {
                 notify("danger", "Error while deleting company");
                 console.error('Error on AJAX request: ', error.responseText);
             }
@@ -89,7 +90,7 @@ $(function () {
     });
 
     /* Add new company form validation and request */
-    $("#companyForm").on('submit', function(event) {
+    $("#companyForm").on('submit', function (event) {
         let action = $("#companyModal").data("action");
 
         event.preventDefault();
@@ -101,7 +102,7 @@ $(function () {
         // check whether the NIF format is correct or not
         const nifPattern = /^[A-Z]\d{8}$/;
         if (!nifPattern.test(formProps.NIF)) {
-            $("#NIF").removeClass("is-valid").addClass("is-invalid"); 
+            $("#NIF").removeClass("is-valid").addClass("is-invalid");
             $("#NIFFeedback").text("Please use correct format (e.g. A01234567).");
             error = 1;
         } else {
@@ -130,7 +131,7 @@ $(function () {
             $("#provinceSelect")
                 .removeClass("select-valid")
                 .addClass("select-invalid");
-            setTimeout(function() { // needed for switch from display none to block
+            setTimeout(function () { // needed for switch from display none to block
                 $(".invalid-province-feedback").addClass("invalid-province-feedback-active");
             }, 10);
         }
@@ -152,7 +153,7 @@ $(function () {
                 $.ajax({
                     url: `/api/findByNIF/${formProps.NIF}`,
                     method: "GET",
-                    success: function(response) {
+                    success: function (response) {
                         if (response.data) {
                             $("#NIF").removeClass("is-valid").addClass("is-invalid");
                             $("#NIFFeedback").text("A company with the specified NIF number already exists.");
@@ -162,7 +163,7 @@ $(function () {
                                 url: "/api/insertCompany",
                                 method: 'POST',
                                 data: formProps,
-                                success: function(response) {
+                                success: function (response) {
                                     notify("success", "Company added successfully");
 
                                     // close modal
@@ -171,14 +172,14 @@ $(function () {
                                     // refresh table
                                     companiesTable.draw();
                                 },
-                                error: function(error) {
+                                error: function (error) {
                                     notify("danger", "Error while adding the new company");
                                     console.error("Error on AJAX request: ", error.responseText);
                                 }
                             });
                         }
                     },
-                    error: function(error) {
+                    error: function (error) {
                         notify("danger", `Error while finding a company with NIF ${formProps.NIF}`);
                         console.error("Error on AJAX request: ", error.responseText);
                     }
@@ -191,7 +192,7 @@ $(function () {
                     url: "/api/updateCompany",
                     method: "PUT",
                     data: formProps,
-                    success: function(response) {
+                    success: function (response) {
                         notify("success", "Company updated successfully");
 
                         // close modal
@@ -200,7 +201,7 @@ $(function () {
                         // refresh table
                         companiesTable.draw();
                     },
-                    error: function(error) {
+                    error: function (error) {
                         if (error.status === 409) { // NIF already exists
                             $("#NIF").removeClass("is-valid").addClass("is-invalid");
                             $("#NIFFeedback").text("A company with the specified NIF number already exists.");
@@ -215,7 +216,7 @@ $(function () {
     });
 
     // change modal data base on clicked button (add company or edit company)
-    $("#companyModal").on("show.bs.modal", function(event) {
+    $("#companyModal").on("show.bs.modal", function (event) {
         let action = $(event.relatedTarget).data("action");
         const title = $("#companyModalTitle");
         const submitBtn = $("#saveCompanyBtn");
@@ -234,7 +235,7 @@ $(function () {
             const row = $(event.relatedTarget).closest('tr');
             const rowData = companiesTable.row(row).data();
 
-            $(this).data("action", "edit");         
+            $(this).data("action", "edit");
             $(this).attr("data-id", rowData._id);
 
             title.text("Edit company");
@@ -249,7 +250,7 @@ $(function () {
     // reset modal styles when closing
     $("#companyModal").on("hidden.bs.modal", function () {
         // clear form styles/values
-        $("#companyForm input").each(function() {
+        $("#companyForm input").each(function () {
             $(this).removeClass("is-valid is-invalid");
         });
 
@@ -258,12 +259,12 @@ $(function () {
     });
 
     // update filename extension based on radio button click
-    $('#exportFormat input:radio').on("click", function() {
+    $('#exportFormat input:radio').on("click", function () {
         let extension = $(this).val();
         $("#extension").text("." + extension);
     });
 
-    $("#confirmExportCompanies").on("click", async function(event) {
+    $("#confirmExportCompanies").on("click", async function (event) {
 
         let format = $('input[name="exportFormat"]:checked').val();
         let dataToExport = $('input[name="exportDataAmount"]:checked').val();
@@ -291,18 +292,21 @@ $(function () {
             }
         }
 
+        // delete _id before exporting
+        data.forEach(document => delete document._id);
+
         // format
         switch (format) {
             case "csv":
                 allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
 
-                headerRow = allKeys.join(',');
-                
+                headerRow = allKeys.map(key => `"${key}"`).join(',');
+
                 bodyRows = data.map(obj => {
                     return allKeys.map(key => {
-                        return obj[key] || ''; // if key does not exist, simply write empty string
+                        return `"${obj[key] || ''}"`; // if key does not exist, simply write empty string
                     }).join(',');
-                });          
+                });
 
                 exportData = [headerRow, ...bodyRows].join('\n');
                 break;
@@ -314,13 +318,13 @@ $(function () {
             case "txt":
                 allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
 
-                headerRow = allKeys.join('\t');
-                
+                headerRow = allKeys.map(key => `"${key}"`).join('\t');
+
                 bodyRows = data.map(obj => {
                     return allKeys.map(key => {
-                        return obj[key] || ''; // if key does not exist, simply write empty string
+                        return `"${obj[key] || ''}"`; // if key does not exist, simply write empty string
                     }).join('\t');
-                });          
+                });
 
                 exportData = [headerRow, ...bodyRows].join('\n');
             default:
@@ -330,11 +334,11 @@ $(function () {
         // create temporal anchor for the download
         let a = document.createElement("a");
         a.href = "data:application/json;charset=utf-8," + encodeURIComponent(exportData);
-        a.download =  $("#filename").val() + "." + format;
+        a.download = $("#filename").val() + "." + format;
         a.style.display = "none";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
     });
-    
+
 });
