@@ -235,17 +235,20 @@ $(function () {
                     return `<a href="//${data}">${data}</a>`;
                 },
                 defaultContent: ''
+
             },
             { data: 'lastScanDate', defaultContent: '' },
             {
                 data: 'vulnerabilities',
                 render: function (data) {
-                    if (data != null && Array.isArray(data)) {
-                        return data.join(', ');
-                    } else {
-                        return data;
-                    }
-                },
+                    data: 'vulnerabilities',
+                        render: function (data) {
+                            if (data != null && Array.isArray(data)) {
+                                return data.join(', ');
+                            } else {
+                                return data;
+                            }
+                        },
                 defaultContent: ''
             },
             {
@@ -339,87 +342,89 @@ $(function () {
                 .removeClass("select-valid")
                 .addClass("select-invalid");
             setTimeout(function () { // needed for switch from display none to block
-                $(".invalid-province-feedback").addClass("invalid-province-feedback-active");
-            }, 10);
-        }
+                setTimeout(function () { // needed for switch from display none to block
+                    $(".invalid-province-feedback").addClass("invalid-province-feedback-active");
+                }, 10);
+            }
 
         // check whether the website format is correct or not
         if (urlPattern.test(formProps.website)) {
-            $("#website").removeClass("is-invalid");
-            $("#website").addClass("is-valid");
-        } else {
-            $("#website").removeClass("is-valid");
-            $("#website").addClass("is-invalid");
-            error = 1;
-        }
-
-        if (!error) {
-            if (action === "create") {
-                // check whether the NIF is already registered or not
-                $.ajax({
-                    url: `/api/findByNIF/${formProps.NIF}`,
-                    method: "GET",
-                    success: function (response) {
-                        if (response.data) {
-                            $("#NIF").removeClass("is-valid").addClass("is-invalid");
-                            $("#NIFFeedback").text("A company with the specified NIF number already exists.");
-                        } else {
-                            // insert new company
-                            $.ajax({
-                                url: "/api/insertCompany",
-                                method: 'POST',
-                                data: formProps,
-                                success: function (response) {
-                                    notify("success", "Company added successfully");
-
-                                    // close modal
-                                    $("#companyModal").modal("hide");
-
-                                    // refresh table
-                                    companiesTable.draw();
-                                },
-                                error: function (error) {
-                                    notify("danger", "Error while adding the new company");
-                                    console.error("Error on AJAX request: ", error.responseText);
-                                }
-                            });
-                        }
-                    },
-                    error: function (error) {
-                        notify("danger", `Error while finding a company with NIF ${formProps.NIF}`);
-                        console.error("Error on AJAX request: ", error.responseText);
-                    }
-                });
-            } else { // edit company data
-                // update data
-                formProps._id = $("#companyModal").attr("data-id");
-
-                $.ajax({
-                    url: "/api/updateCompany",
-                    method: "PUT",
-                    data: formProps,
-                    success: function (response) {
-                        notify("success", "Company updated successfully");
-
-                        // close modal
-                        $("#companyModal").modal("hide");
-
-                        // refresh table
-                        companiesTable.draw();
-                    },
-                    error: function (error) {
-                        if (error.status === 409) { // NIF already exists
-                            $("#NIF").removeClass("is-valid").addClass("is-invalid");
-                            $("#NIFFeedback").text("A company with the specified NIF number already exists.");
-                        } else {
-                            notify("danger", "Error while updating company data");
-                            console.error("Error on AJAX request: ", error.responseText);
-                        }
-                    }
-                });
+                $("#website").removeClass("is-invalid");
+                $("#website").addClass("is-valid");
+            } else {
+                $("#website").removeClass("is-valid");
+                $("#website").addClass("is-invalid");
+                error = 1;
             }
-        }
-    });
+
+            if (!error) {
+                if (action === "create") {
+                    // check whether the NIF is already registered or not
+                    $.ajax({
+                        url: `/api/findByNIF/${formProps.NIF}`,
+                        method: "GET",
+                        success: function (response) {
+                            success: function (response) {
+                                if (response.data) {
+                                    $("#NIF").removeClass("is-valid").addClass("is-invalid");
+                                    $("#NIFFeedback").text("A company with the specified NIF number already exists.");
+                                } else {
+                                    // insert new company
+                                    $.ajax({
+                                        url: "/api/insertCompany",
+                                        method: 'POST',
+                                        data: formProps,
+                                        success: function (response) {
+                                            notify("success", "Company added successfully");
+
+                                            // close modal
+                                            $("#companyModal").modal("hide");
+
+                                            // refresh table
+                                            companiesTable.draw();
+                                        },
+                                        error: function (error) {
+                                            notify("danger", "Error while adding the new company");
+                                            console.error("Error on AJAX request: ", error.responseText);
+                                        }
+                                    });
+                                }
+                            },
+                            error: function (error) {
+                                notify("danger", `Error while finding a company with NIF ${formProps.NIF}`);
+                                console.error("Error on AJAX request: ", error.responseText);
+                            }
+                        });
+                } else { // edit company data
+                    // update data
+                    formProps._id = $("#companyModal").attr("data-id");
+
+                    $.ajax({
+                        url: "/api/updateCompany",
+                        method: "PUT",
+                        data: formProps,
+                        success: function (response) {
+                            notify("success", "Company updated successfully");
+
+                            // close modal
+                            $("#companyModal").modal("hide");
+
+                            // refresh table
+                            companiesTable.draw();
+                        },
+                        error: function (error) {
+                            if (error.status === 409) { // NIF already exists
+                                $("#NIF").removeClass("is-valid").addClass("is-invalid");
+                                $("#NIFFeedback").text("A company with the specified NIF number already exists.");
+                            } else {
+                                notify("danger", "Error while updating company data");
+                                console.error("Error on AJAX request: ", error.responseText);
+                            }
+                        }
+                    });
+                }
+            }
+        });
 
     // change modal data base on clicked button (add company or edit company)
     $("#companyModal").on("show.bs.modal", function (event) {
@@ -497,6 +502,9 @@ $(function () {
             }
         }
 
+        // delete _id before exporting
+        data.forEach(document => delete document._id);
+
         // format
         switch (format) {
             case "csv":
@@ -506,98 +514,101 @@ $(function () {
 
                 bodyRows = data.map(obj => {
                     return allKeys.map(key => {
-                        return obj[key] || ''; // if key does not exist, simply write empty string
+                        return `"${obj[key] || ''}"`; // if key does not exist, simply write empty string
                     }).join(',');
                 });
-
-                exportData = [headerRow, ...bodyRows].join('\n');
-                break;
-
-            case "json":
-                exportData = JSON.stringify(data);
-                break;
-
-            case "txt":
-                allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
-
-                headerRow = allKeys.join('\t');
-
-                bodyRows = data.map(obj => {
-                    return allKeys.map(key => {
-                        return obj[key] || ''; // if key does not exist, simply write empty string
-                    }).join('\t');
-                });
-
-                exportData = [headerRow, ...bodyRows].join('\n');
-            default:
-                break;
-        }
-
-        // create temporal anchor for the download
-        let a = document.createElement("a");
-        a.href = "data:application/json;charset=utf-8," + encodeURIComponent(exportData);
-        a.download = $("#filename").val() + "." + format;
-        a.style.display = "none";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    });
-
-    let dropZone = $("#dropZone");
-    let innerDropZone = $("#innerDropZone")
-
-    dropZone
-        .on("dragenter", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            dropZone.addClass("drop-zone-dragenter");
-            innerDropZone.addClass("inner-drop-zone-dragenter");
-        })
-        .on("dragover", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        })
-        .on("dragleave", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            var dropZoneRect = dropZone[0].getBoundingClientRect();
-            if (
-                event.relatedTarget === null ||
-                !dropZone[0].contains(event.relatedTarget) ||
-                event.clientY < dropZoneRect.top ||
-                event.clientY >= dropZoneRect.bottom ||
-                event.clientX < dropZoneRect.left ||
-                event.clientX >= dropZoneRect.right
-            ) {
-                dropZone.removeClass("drop-zone-dragenter");
-                innerDropZone.removeClass("inner-drop-zone-dragenter");
-            }
-        })
-        .on("drop", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            dropZone.removeClass("drop-zone-dragenter");
-            innerDropZone.removeClass("inner-drop-zone-dragenter");
-            prepareFiles(event.originalEvent.dataTransfer.files);
         });
 
-    $("#importFileBtn").on("click", function () {
-        $("#importFileInput").click();
+    exportData = [headerRow, ...bodyRows].join('\n');
+    break;
+
+            case "json":
+    exportData = JSON.stringify(data);
+    break;
+
+            case "txt":
+    allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
+
+    headerRow = allKeys.join('\t');
+
+    bodyRows = data.map(obj => {
+        return allKeys.map(key => {
+            return `"${obj[key] || ''}"`; // if key does not exist, simply write empty string
+        }).join('\t');
+    });
+});
+
+exportData = [headerRow, ...bodyRows].join('\n');
+            default:
+break;
+        }
+
+// create temporal anchor for the download
+let a = document.createElement("a");
+a.href = "data:application/json;charset=utf-8," + encodeURIComponent(exportData);
+a.download = $("#filename").val() + "." + format;
+a.download = $("#filename").val() + "." + format;
+a.style.display = "none";
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
     });
 
-    $("#importFileInput").on("change", function () {
-        prepareFiles(this.files);
+let dropZone = $("#dropZone");
+let innerDropZone = $("#innerDropZone")
+
+dropZone
+    .on("dragenter", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        dropZone.addClass("drop-zone-dragenter");
+        innerDropZone.addClass("inner-drop-zone-dragenter");
+    })
+    .on("dragover", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    })
+    .on("dragleave", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        var dropZoneRect = dropZone[0].getBoundingClientRect();
+        if (
+            event.relatedTarget === null ||
+            !dropZone[0].contains(event.relatedTarget) ||
+            event.clientY < dropZoneRect.top ||
+            event.clientY >= dropZoneRect.bottom ||
+            event.clientX < dropZoneRect.left ||
+            event.clientX >= dropZoneRect.right
+        ) {
+            dropZone.removeClass("drop-zone-dragenter");
+            innerDropZone.removeClass("inner-drop-zone-dragenter");
+        }
+    })
+    .on("drop", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        dropZone.removeClass("drop-zone-dragenter");
+        innerDropZone.removeClass("inner-drop-zone-dragenter");
+        prepareFiles(event.originalEvent.dataTransfer.files);
     });
 
-    $("#uploadImport").on("click", function () {
-        uploadFiles(companiesTable);
-    });
+$("#importFileBtn").on("click", function () {
+    $("#importFileInput").click();
+});
 
-    // reset modal styles when closing
-    $("#importCompanyModal").on("hidden.bs.modal", function () {
-        clearFileList();
-        $("#uploadImport").prop("disabled", false);
-    });
+$("#importFileInput").on("change", function () {
+    prepareFiles(this.files);
+});
+
+$("#uploadImport").on("click", function () {
+    uploadFiles(companiesTable);
+});
+
+// reset modal styles when closing
+$("#importCompanyModal").on("hidden.bs.modal", function () {
+    clearFileList();
+    $("#uploadImport").prop("disabled", false);
+});
 });
