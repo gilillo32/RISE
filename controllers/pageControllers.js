@@ -138,11 +138,18 @@ const insertCompany = async (req, res) => {
 const importCompanyFile = async (req, res) => {
     const file = req.file;
 
+
     // Validate file extension
     const fileExtension = file.originalname.split('.').pop().toLowerCase();
+    let fileContent, lines;
     switch (fileExtension) {
         case "csv":
-            return res.status(400).json({ error: "Not implemented yet" });
+            // Read file content
+            fileContent = file.buffer.toString("utf-8");
+            lines = fileContent.split('\n');
+
+            // Check headers
+            headers = lines[0].match(/(?:[^\s"]+|"[^"]*")+/g).map(value => value.replace(/"/g, ''));
             break;
 
         case "json":
@@ -150,21 +157,22 @@ const importCompanyFile = async (req, res) => {
             break;
 
         case "txt":
+            // Read file content
+            fileContent = file.buffer.toString("utf-8");
+            lines = fileContent.split('\n');
+
+            // Check headers
+            headers = lines[0].match(/(?:[^\s"]+|"[^"]*")+/g).map(value => value.replace(/"/g, ''));
+
             break;
         default:
             return res.status(400).json({ error: "File type no allowed" });
     }
 
-    // Read file content
-    const fileContent = file.buffer.toString("utf-8");
-    const lines = fileContent.split('\n');
 
-    // Check headers
-    const headers = lines[0].match(/(?:[^\s"]+|"[^"]*")+/g).map(value => value.replace(/"/g, ''));
-    const expectedHeaders = ["NIF", "name", "province", "web"];
 
-    if (!headers.every((header, index) => header === expectedHeaders[index])) {
-        return res.status(400).json({ error: `Invalid column headers. Headers must be ${expectedHeaders.join(", ")}` });
+    if (!headers.every((header, index) => header === columnNames[index])) {
+        return res.status(400).json({ error: `Invalid column headers. Headers must be ${columnNames.join(", ")}` });
     }
 
     // Process each line

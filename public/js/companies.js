@@ -1,79 +1,56 @@
 const allowedExtensions = ["csv", "json", "txt"];
-let columns = ["NIF", "name", "province", "web"];
 const nifPattern = /^[A-Z]\d{8}$/;
 const urlPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
 
-function updatePreviewTable(data) {
-    $("#dropzoneTable > tbody").text("");
+let columns = ["NIF", "name", "province", "web"];
+let fileList = [];
+let fileCounter = 0;
 
-    if (data.length == 0) {
-        $("#dropzoneTable > tbody").html("<tr><td class='text-center' colspan='100%'>Drop files here</td></tr>");
-    } else {
-        for (let l = 0; l < data.length; l++) {
-            let row = "<tr>";
-            for (let m = 0; m < columns.length; m++) {
-                row += "<td>" + data[l][columns[m]] + "</td>";
-            }
-
-            // add status column
-            row += "<td></td></tr>";
-            $("#dropzoneTable > tbody").append(row);
-        }
-    }
+function updateFilesToUploadCount() {
+    $("#filesToUpload").text(fileList.length);
 }
 
-function appendFileElement(fileList, file) {
+function appendFileElement(file) {
     const fileExtension = file.name.split('.').pop().toLowerCase();
     const fileSizeInKB = Math.round(file.size * 100 / 1024) / 100;
-    const index = fileList.indexOf(file);
-
-    // get file icon
-    switch (fileExtension) {
-        case "csv":
-            icon = "fa-file-csv";
-            break;
-
-        case "json":
-            icon = "fa-file";
-            break;
-
-        case "txt":
-            icon = "fa-file-lines";
-            break;
-
-        default:
-            icon = "fa-file";
-            break;
-    }
+    const uniqueId = `collapse${fileCounter}`;
 
     $("#fileList").append(`
-        <li class="d-flex file-wrapper mb-3">
-            <div class="flex-fill">
-                <div class="d-flex justify-content-between mb-3">
-                    <div>
-                        <i class="fa-solid ${icon}"></i>
-                        <span class="file-name">${file.name}</span>
-                        <span class="file-size disabled">${fileSizeInKB} KB</span>
+        <li class="mb-3 file-item">
+            <div class="d-flex file-wrapper collapsed" data-mdb-toggle="collapse" data-mdb-target="#${uniqueId}" aria-expanded="false" aria-controls="${uniqueId}">
+                <div class="flex-fill">
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>
+                            <i class="fa-solid fa-chevron-down me-3"></i>
+                            <span class="file-name"><b>${file.name}</b></span>
+                            <span class="file-size disabled">${fileSizeInKB} KB</span>
+                        </div>
+                        <div>
+                            <span class="percentage">0 %</span>
+                        </div>
                     </div>
-                <div>
-                    <span class="percentage">0</span>%
+
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+
+                <div class="px-3">
+                    <button type="button" class="btn btn-danger btn-floating btn-sm remove-file-btn" data-mdb-ripple-init>
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
             </div>
 
-            <div class="progress">
-                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-            </div>
-
-            <div class="px-3">
-            <i class="remove-file fa-solid fa-circle-xmark"></i>
+            <div class="collapse mt-3" id="${uniqueId}">
+                Waiting for upload.
             </div>
         </li>
 
         <hr>
     `);
 
-    $('.remove-file').last().on("click", function () {
+    $('.remove-file-btn').last().on("click", function () {
         // remove from DOM
         const parentli = $(this).closest("li");
         parentli.next("hr").remove();
@@ -82,10 +59,14 @@ function appendFileElement(fileList, file) {
         // remove from array of files
         let index = fileList.map(item => item.name).indexOf(file.name);
         fileList.splice(index, 1);
+
+        updateFilesToUploadCount();
     })
+
+    fileCounter++;
 }
 
-function prepareFiles(fileList, files) {
+function prepareFiles(files) {
     for (file of files) {
         const fileExtension = file.name.split('.').pop().toLowerCase();
 
@@ -100,21 +81,19 @@ function prepareFiles(fileList, files) {
         }
 
         fileList.push(file);
-        appendFileElement(fileList, file);
+        appendFileElement(file);
+        updateFilesToUploadCount();
     }
 }
 
-function updateProgressBar(progressBar, percentage) {
+function updateProgress(progressBar, percentageIndicator, percentage) {
     progressBar.css("width", percentage + "%");
+    percentageIndicator.text(`${percentage} %`);
     progressBar.attr("aria-valuenow", percentage);
 }
 
-function uploadFiles(files) {
-    for (const [index, file] of files.entries()) {
-        const progressBar = $(`#fileList li:eq(${index})`).find(".progress-bar");
-        const formData = new FormData();
-        formData.append('file', file);
-
+async function uploadFile(formData, progressBar, percentageIndicator) {
+    return new Promise((resolve, reject) => {
         $.ajax({
             url: 'api/importCompanyFile',
             type: 'POST',
@@ -127,20 +106,78 @@ function uploadFiles(files) {
                 xhr.upload.addEventListener("progress", function (event) {
                     if (event.lengthComputable) {
                         const percentage = (event.loaded / event.total) * 100;
-                        updateProgressBar(progressBar, percentage);
+                        updateProgress(progressBar, percentageIndicator, percentage);
                     }
-                })
+                });
 
                 return xhr;
             },
             success: function (data) {
-                console.log(data);
+                resolve(data);
             },
             error: function (error) {
-                console.error("Error in ajax request:", error.responseText);
+                reject(error);
             }
-        })
+        });
+    });
+}
+
+async function uploadFiles(companiesTable) {
+    // disable upload button
+    $("#uploadImport").prop("disabled", true);
+
+    // disable remove file buttons
+    $(".remove-file-btn").prop("disabled", true);
+
+    // prevent modal from being closed while uploading
+    let modal = mdb.Modal.getInstance($("#importCompanyModal").modal());
+    modal._config.backdrop = "static";
+    modal._config.keyboard = false;
+
+    let totalInsertedRows = 0;
+
+    for (const [index, file] of fileList.entries()) {
+        const progressBar = $(`#fileList .file-item:eq(${index})`).find(".progress-bar:first");
+        const percentageIndicator = $(`#fileList li:eq(${index})`).find(".percentage:first");
+        const feedbackSection = $(`#fileList .collapse:eq(${index})`);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const data = await uploadFile(formData, progressBar, percentageIndicator);
+            totalInsertedRows += data.insertedRows;
+
+            let feedback = `${data.insertedRows}/${data.totalRows} companies imported successfully.`;
+
+            if (data.insertedRows === data.totalRows) { // total success
+                progressBar.addClass("bg-success");
+            } else {
+                const errorList = data.errors.map(error => `<li>${error}</li>`);
+                feedback += `<ul>${errorList.join("")}<ul>`
+                if (data.insertedRows === 0) { // zero success
+                    progressBar.addClass("bg-danger");
+                } else { // partial success
+                    progressBar.addClass("bg-warning");
+                }
+            }
+
+            feedbackSection.html(feedback);
+
+            let oldFilesUploaded = parseInt($("#filesUploaded").text());
+            $("#filesUploaded").text(oldFilesUploaded + 1);
+        } catch (error) {
+            errorMsg = `Error in ajax request: ${error?.responseJSON?.error ?? "No response from server."}`
+            feedbackSection.html(errorMsg);
+        }
     }
+
+    if (totalInsertedRows > 0) {
+        companiesTable.draw();
+    }
+
+    // enable modal closing options
+    modal._config.backdrop = true;
+    modal._config.keyboard = true;
 }
 
 function changeRowStatus(row, status, message = "") {
@@ -162,14 +199,19 @@ function changeRowStatus(row, status, message = "") {
     row.find('td:last').html(`<i class="fa-solid fa-${icon} text-${status}"></i>`);
 }
 
-$(function () {
-    let fileList = [];
+function clearFileList() {
+    fileList = [];
+    $("#fileList").empty();
+    $("#filesUploaded").text("0");
+    $("#filesToUpload").text("0");
+}
 
+$(function () {
     /* Initialise companies DataTable */
     let companiesTable = $('#companiesTable').DataTable({
+        scrollX: true,
         paging: true,
         searching: true,
-        responsive: true,
         lengthMenu: [10, 25, 50, 75, 100],
         processing: true,
         serverSide: true,
@@ -209,11 +251,11 @@ $(function () {
             {
                 data: null,
                 render: function () {
-                    return '<button type="button" class="btn btn-primary btn-floating" data-mdb-toggle="modal" data-mdb-target="#companyModal" data-action="edit">\
+                    return '<button type="button" class="btn btn-primary btn-floating btn-sm" data-mdb-toggle="modal" data-mdb-target="#companyModal" data-action="edit">\
                                 <i class="fa-solid fa-pen"></i>\
                             </button>'+
 
-                        '<button type="button" class="btn btn-danger btn-floating btn-delete-company">\
+                        '<button type="button" class="btn btn-danger btn-floating btn-delete-company btn-sm">\
                                 <i class="fa-solid fa-trash"></i>\
                             </button>\
                             '
@@ -221,7 +263,7 @@ $(function () {
                 className: "column-actions"
             },
         ]
-    });
+    }).columns.adjust().draw();
 
     /* Request provinces data for provinces select */
     $.getJSON('json/provinces.json', function (data) {
@@ -429,7 +471,6 @@ $(function () {
     });
 
     $("#confirmExportCompanies").on("click", async function (event) {
-
         let format = $('input[name="exportFormat"]:checked').val();
         let dataToExport = $('input[name="exportDataAmount"]:checked').val();
         let data, exportData, allKeys, headerRow, bodyRows;
@@ -502,31 +543,61 @@ $(function () {
         document.body.removeChild(a);
     });
 
-    $("#dropZone").on("dragenter", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    });
+    let dropZone = $("#dropZone");
+    let innerDropZone = $("#innerDropZone")
 
-    $("#dropZone").on("dragover", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    });
+    dropZone
+        .on("dragenter", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            dropZone.addClass("drop-zone-dragenter");
+            innerDropZone.addClass("inner-drop-zone-dragenter");
+        })
+        .on("dragover", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        })
+        .on("dragleave", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
 
-    $("#dropZone").on("drop", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        prepareFiles(fileList, event.originalEvent.dataTransfer.files);
-    });
+            var dropZoneRect = dropZone[0].getBoundingClientRect();
+            if (
+                event.relatedTarget === null ||
+                !dropZone[0].contains(event.relatedTarget) ||
+                event.clientY < dropZoneRect.top ||
+                event.clientY >= dropZoneRect.bottom ||
+                event.clientX < dropZoneRect.left ||
+                event.clientX >= dropZoneRect.right
+            ) {
+                dropZone.removeClass("drop-zone-dragenter");
+                innerDropZone.removeClass("inner-drop-zone-dragenter");
+            }
+        })
+        .on("drop", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            dropZone.removeClass("drop-zone-dragenter");
+            innerDropZone.removeClass("inner-drop-zone-dragenter");
+            prepareFiles(event.originalEvent.dataTransfer.files);
+        });
 
     $("#importFileBtn").on("click", function () {
         $("#importFileInput").click();
     });
 
     $("#importFileInput").on("change", function () {
-        prepareFiles(fileList, this.files);
+        prepareFiles(this.files);
     });
 
     $("#uploadImport").on("click", function () {
-        uploadFiles(fileList);
+        uploadFiles(companiesTable);
+    });
+
+    // reset modal styles when closing
+    $("#importCompanyModal").on("hidden.bs.modal", function () {
+        clearFileList();
+        $("#uploadImport").prop("disabled", false);
     });
 });
