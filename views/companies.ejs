@@ -36,6 +36,10 @@
 <div id="importCompanyModal" class="import-company-modal modal fade" tabindex="-1" aria-labelledby="importModal" aria-hidden="true" data-action="create">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Import companies</h5>
+                <button id="closeImportModalBtn" type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+            </div>
             <div class="modal-body">
                 <div id="dropZone" class="drop-zone">
                     <div id="innerDropZone" class="inner-drop-zone w-100 d-flex justify-content-between align-items-center">
@@ -50,7 +54,7 @@
                         <div>
                             <input type="file" id="importFileInput" class="import-file-input" multiple>
                             <button type="button" id="importFileBtn" class="btn btn-outline-primary" data-mdb-ripple-init data-mdb-ripple-color="dark">Select files</button>
-                            <button id="uploadImport" type="button" class="btn btn-primary" data-mdb-ripple-init data-mdb-ripple-color="dark">Upload</button>
+                            <button id="uploadImport" type="button" class="btn btn-primary" disabled data-mdb-ripple-init data-mdb-ripple-color="dark" disabled>Upload</button>
                         </div>
                     </div>
                 </div>
@@ -58,7 +62,7 @@
                 <br>
 
                 <div>
-                    <p><span id="filesUploaded">0</span> of <span id="filesToUpload">0</span> files uploaded</p>
+                    <p class="upload-summary"><span id="filesUploaded">0</span> of <span id="filesToUpload">0</span> files uploaded</p>
                     <ul id="fileList" class="file-list">
                     </ul>
                 </div>

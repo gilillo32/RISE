@@ -14,7 +14,8 @@ const companySchema = new mongoose.Schema({
     },
     website: {
         type: String,
-    }, 
+        required: true
+    },
     lastScanDate: {
         type: Date
     },
@@ -33,8 +34,8 @@ companySchema.set('toJSON', {
                 year: 'numeric',
             });
         }
-      return ret;
+        return ret;
     },
-  });
+});
 
 module.exports = mongoose.model('Company', companySchema)

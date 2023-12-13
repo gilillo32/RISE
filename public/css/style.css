@@ -198,10 +198,6 @@ select {
 
 /* Import company modal */
 
-.import-company-modal .modal-body {
-    padding: 60px;
-}
-
 .drop-zone {
     background-color: #CBDCE1;
     box-sizing: border-box;
@@ -232,6 +228,10 @@ select {
     color: #99a3a4;
 }
 
+.upload-summary {
+    color: #0F4B87;
+}
+
 .file-list {
     list-style: none;
 }
@@ -240,12 +240,17 @@ select {
     cursor: pointer;
 }
 
-.remove-file-btn {
-    cursor: pointer;
+.file-name {
+    color: #3B71CA;
 }
 
 .remove-file-btn {
+    cursor: pointer;
     color: #fff !important;
+}
+
+.progress {
+    height: 5px;
 }
 
 /* Collapse icon animation */

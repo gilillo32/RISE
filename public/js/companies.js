@@ -1,19 +1,59 @@
-const allowedExtensions = ["csv", "json", "txt"];
+
 const nifPattern = /^[A-Z]\d{8}$/;
 const urlPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
 
-let columns = ["NIF", "name", "province", "web"];
+let companiesTable;
 let fileList = [];
 let fileCounter = 0;
+
+function getFileExtesion(fileName) {
+    return fileName.split('.').pop().toLowerCase();
+}
+
+function isAllowedExtension(extension) {
+    const allowedExtensions = ["csv", "json", "txt"];
+    return allowedExtensions.includes(extension);
+}
 
 function updateFilesToUploadCount() {
     $("#filesToUpload").text(fileList.length);
 }
 
+function formatBytes(bytes) {
+    const kilobyte = 1024;
+    const megabyte = kilobyte * 1024;
+
+    if (bytes < kilobyte) {
+        return bytes + ' Bytes';
+    } else if (bytes < megabyte) {
+        return (bytes / kilobyte).toFixed(2) + ' KB';
+    } else {
+        return (bytes / megabyte).toFixed(2) + ' MB';
+    }
+}
+
 function appendFileElement(file) {
-    const fileExtension = file.name.split('.').pop().toLowerCase();
-    const fileSizeInKB = Math.round(file.size * 100 / 1024) / 100;
+    const fileExtension = getFileExtesion(file.name);
+    const fileSize = formatBytes(file.size);
     const uniqueId = `collapse${fileCounter}`;
+
+    let fileIconClass;
+    switch (fileExtension) {
+        case "csv":
+            fileIconClass = "fa-solid fa-file-csv";
+            break;
+
+        case "json":
+            fileIconClass = "fa-solid fa-file"
+            break;
+
+        case "txt":
+            fileIconClass = "fa-solid fa-file-lines"
+            break;
+
+        default:
+            fileIconClass = "fa-solid fa-file"
+    }
 
     $("#fileList").append(`
         <li class="mb-3 file-item">
@@ -22,8 +62,9 @@ function appendFileElement(file) {
                     <div class="d-flex justify-content-between mb-3">
                         <div>
                             <i class="fa-solid fa-chevron-down me-3"></i>
-                            <span class="file-name"><b>${file.name}</b></span>
-                            <span class="file-size disabled">${fileSizeInKB} KB</span>
+                            <i class="${fileIconClass} fa-lg me-2"></i>
+                            <span class="file-name">${file.name}</span>
+                            <span class="file-size disabled">${fileSize}</span>
                         </div>
                         <div>
                             <span class="percentage">0 %</span>
@@ -60,6 +101,10 @@ function appendFileElement(file) {
         let index = fileList.map(item => item.name).indexOf(file.name);
         fileList.splice(index, 1);
 
+        if (fileList.length === 0) {
+            $("#uploadImport").attr("disabled", true);
+        }
+
         updateFilesToUploadCount();
     })
 
@@ -68,10 +113,10 @@ function appendFileElement(file) {
 
 function prepareFiles(files) {
     for (file of files) {
-        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const fileExtension = getFileExtesion(file.name);
 
-        if (!allowedExtensions.includes(fileExtension)) {
-            alert(`File ${file.name} not allowed. Allowed extensions: ${allowedExtensions.join(', ')}.`);
+        if (!isAllowedExtension(fileExtension)) {
+            alert(`File ${file.name} not allowed.`);
             continue;
         }
 
@@ -83,6 +128,10 @@ function prepareFiles(files) {
         fileList.push(file);
         appendFileElement(file);
         updateFilesToUploadCount();
+    }
+
+    if (fileList.length > 0) {
+        $("#uploadImport").attr("disabled", false);
     }
 }
 
@@ -123,23 +172,25 @@ async function uploadFile(formData, progressBar, percentageIndicator) {
 }
 
 async function uploadFiles(companiesTable) {
-    // disable upload button
+    // disable select, upload and remove file buttons
     $("#uploadImport").prop("disabled", true);
-
-    // disable remove file buttons
+    $("#importFileBtn").prop("disabled", true);
     $(".remove-file-btn").prop("disabled", true);
 
     // prevent modal from being closed while uploading
     let modal = mdb.Modal.getInstance($("#importCompanyModal").modal());
     modal._config.backdrop = "static";
     modal._config.keyboard = false;
+    $("#closeImportModalBtn").prop("disabled", true);
 
     let totalInsertedRows = 0;
 
+    // upload files one by one
     for (const [index, file] of fileList.entries()) {
         const progressBar = $(`#fileList .file-item:eq(${index})`).find(".progress-bar:first");
         const percentageIndicator = $(`#fileList li:eq(${index})`).find(".percentage:first");
         const feedbackSection = $(`#fileList .collapse:eq(${index})`);
+
         const formData = new FormData();
         formData.append('file', file);
 
@@ -178,25 +229,7 @@ async function uploadFiles(companiesTable) {
     // enable modal closing options
     modal._config.backdrop = true;
     modal._config.keyboard = true;
-}
-
-function changeRowStatus(row, status, message = "") {
-    let icon;
-
-    switch (status) {
-        case "success":
-            icon = "check";
-            break;
-        case "danger":
-            icon = "xmark"
-            break;
-        default:
-            break;
-    }
-
-    // change row bg and icon
-    row.removeClass().addClass(`text-center row-${status}`);
-    row.find('td:last').html(`<i class="fa-solid fa-${icon} text-${status}"></i>`);
+    $("#closeImportModalBtn").prop("disabled", "false");
 }
 
 function clearFileList() {
@@ -206,9 +239,283 @@ function clearFileList() {
     $("#filesToUpload").text("0");
 }
 
+function deleteCompany() {
+    const row = $(this).closest('tr');
+    const _id = companiesTable.row(row).data()._id;
+
+    $.ajax({
+        url: `/api/deleteCompany/${_id}`,
+        method: 'DELETE',
+        success: function (response) {
+            // update table
+            companiesTable.row(row).remove().draw();
+
+            notify("success", "Company successfully deleted");
+        },
+        error: function (error) {
+            notify("danger", "Error while deleting company");
+            console.error('Error on AJAX request: ', error.responseText);
+        }
+    });
+}
+
+function submitCompanyForm(event) {
+    event.preventDefault();
+    let action = $("#companyModal").data("action");
+
+    let error = 0;
+    let formData = new FormData(event.target);
+    let formProps = Object.fromEntries(formData);
+
+    // check whether the NIF format is correct or not
+    if (nifPattern.test(formProps.NIF)) {
+        $("#NIFFeedback").text("");
+        $("#NIF").removeClass("is-invalid").addClass("is-valid");
+    } else {
+        $("#NIF").removeClass("is-valid").addClass("is-invalid");
+        $("#NIFFeedback").text("Please use correct format (e.g. A01234567).");
+        error = 1;
+    }
+
+    // check whether the name is empty or not
+    if (formProps.name === "") {
+        $("#companyName").removeClass("is-valid").addClass("is-invalid");
+        error = 1;
+    } else {
+        $("#companyName").removeClass("is-invalid").addClass("is-valid");
+    }
+
+    // check whether a province has been selected or not
+    if (formProps.province) {
+        $(".invalid-province-feedback-active")
+            .css("display", "none")
+            .removeClass("invalid-province-feedback-active");
+        $("#provinceSelect")
+            .removeClass("select-invalid")
+            .addClass("select-valid");
+    } else {
+        $(".invalid-province-feedback").css("display", "block");
+        $("#provinceSelect")
+            .removeClass("select-valid")
+            .addClass("select-invalid");
+
+        setTimeout(function () { // needed for switch from display none to block
+            $(".invalid-province-feedback").addClass("invalid-province-feedback-active");
+        }, 10);
+    }
+
+    // check whether the website format is correct or not
+    if (urlPattern.test(formProps.website)) {
+        $("#website").removeClass("is-invalid");
+        $("#website").addClass("is-valid");
+    } else {
+        $("#website").removeClass("is-valid");
+        $("#website").addClass("is-invalid");
+        error = 1;
+    }
+
+    if (!error) {
+        if (action === "create") {
+            // check whether the NIF is already registered or not
+            $.ajax({
+                url: `/api/findByNIF/${formProps.NIF}`,
+                method: "GET",
+                success: function (response) {
+                    if (response.data) {
+                        $("#NIF").removeClass("is-valid").addClass("is-invalid");
+                        $("#NIFFeedback").text("A company with the specified NIF number already exists.");
+                    } else {
+                        // insert new company
+                        $.ajax({
+                            url: "/api/insertCompany",
+                            method: 'POST',
+                            data: formProps,
+                            success: function (response) {
+                                notify("success", "Company added successfully");
+
+                                // close modal
+                                $("#companyModal").modal("hide");
+
+                                // refresh table
+                                companiesTable.draw();
+                            },
+                            error: function (error) {
+                                notify("danger", "Error while adding the new company");
+                                console.error("Error on AJAX request: ", error.responseText);
+                            }
+                        });
+                    }
+                },
+                error: function (error) {
+                    notify("danger", `Error while finding a company with NIF ${formProps.NIF}`);
+                    console.error("Error on AJAX request: ", error.responseText);
+                }
+            });
+        } else { // edit company data
+            // update data
+            formProps._id = $("#companyModal").attr("data-id");
+
+            $.ajax({
+                url: "/api/updateCompany",
+                method: "PUT",
+                data: formProps,
+                success: function (response) {
+                    notify("success", "Company updated successfully");
+
+                    // close modal
+                    $("#companyModal").modal("hide");
+
+                    // refresh table
+                    companiesTable.draw();
+                },
+                error: function (error) {
+                    if (error.status === 409) { // NIF already exists
+                        $("#NIF").removeClass("is-valid").addClass("is-invalid");
+                        $("#NIFFeedback").text("A company with the specified NIF number already exists.");
+                    } else {
+                        notify("danger", "Error while updating company data");
+                        console.error("Error on AJAX request: ", error.responseText);
+                    }
+                }
+            });
+        }
+    }
+}
+
+function changeCompanyModalData(event) {
+    let action = $(event.relatedTarget).data("action");
+    const title = $("#companyModalTitle");
+    const submitBtn = $("#saveCompanyBtn");
+
+    if (action === "create") {
+        $(this).data("action", "create");
+        $(this).removeAttr("data-id");
+
+        title.text("Add company");
+        submitBtn.text("Add company");
+        $("#NIF").val("");
+        $("#companyName").val("");
+        $("#provinceSelect").val("");
+        $("#website").val("");
+    } else { // edit company data
+        const row = $(event.relatedTarget).closest('tr');
+        const rowData = companiesTable.row(row).data();
+
+        $(this).data("action", "edit");
+        $(this).attr("data-id", rowData._id);
+
+        title.text("Edit company");
+        submitBtn.text("Save changes");
+        $("#NIF").val(rowData.NIF);
+        $("#companyName").val(rowData.name);
+        $("#provinceSelect").val(rowData.province);
+        $("#website").val(rowData.website);
+    }
+}
+
+function resetCompanyModalStyles() {
+    // clear form styles/values
+    $("#companyForm input").each(function () {
+        $(this).removeClass("is-valid is-invalid");
+    });
+
+    $("#provinceSelect").removeClass("select-valid select-invalid");
+    $(".invalid-province-feedback").css("display", "none").removeClass("invalid-province-feedback-active");
+}
+
+function resetImportCompanyModalStyles() {
+    clearFileList();
+    $("#importFileBtn").prop("disabled", false);
+    $("#uploadImport").prop("disabled", true);
+}
+
+function updateFileExtensionText() {
+    let extension = $(this).val();
+    $("#extension").text("." + extension);
+}
+
+async function exportCompanies() {
+    let format = $('input[name="exportFormat"]:checked').val();
+    let dataToExport = $('input[name="exportDataAmount"]:checked').val();
+    let data, exportData, allKeys, headerRow, bodyRows;
+
+    // select data
+    if (dataToExport === "page") {
+        data = companiesTable.rows().data().toArray();
+    } else if (dataToExport === "all") {
+        try {
+            let response = await $.ajax({
+                url: '/api/getCompanies',
+                method: 'GET',
+                data: {
+                    filter: companiesTable.search(),
+                    sort: companiesTable.order()
+                }
+            });
+
+            data = response.data;
+        } catch (error) {
+            notify("danger", "Error while retrieving information about the companies");
+            console.error("Error on AJAX request: ", error.responseText);
+            return;
+        }
+    }
+
+    // delete _id and __v before exporting
+    data.forEach(document => {
+        delete document._id;
+        delete document.__v;
+    });
+
+    // format
+    switch (format) {
+        case "csv":
+            allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
+            headerRow = allKeys.map(key => `"${key}"`).join(',');
+
+            bodyRows = data.map(obj => {
+                return allKeys.map(key => {
+                    return `"${obj[key] || ''}"`; // if key does not exist, simply write empty string
+                }).join(',');
+            });
+            exportData = [headerRow, ...bodyRows].join('\n');
+            break;
+
+        case "json":
+            exportData = JSON.stringify(data);
+            break;
+
+        case "txt":
+            allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
+
+            headerRow = allKeys.map(key => `"${key}"`).join('\t');
+
+            bodyRows = data.map(obj => {
+                return allKeys.map(key => {
+                    return `"${obj[key] || ''}"`; // if key does not exist, simply write empty string
+                }).join('\t');
+            });
+
+            exportData = [headerRow, ...bodyRows].join('\n');
+            break;
+        default:
+            break;
+    }
+
+    // create temporal anchor for the download
+    let a = document.createElement("a");
+    a.href = "data:application/json;charset=utf-8," + encodeURIComponent(exportData);
+    a.download = $("#filename").val() + "." + format;
+    a.download = $("#filename").val() + "." + format;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
 $(function () {
-    /* Initialise companies DataTable */
-    let companiesTable = $('#companiesTable').DataTable({
+    // Initialise companies DataTable
+    companiesTable = $('#companiesTable').DataTable({
         scrollX: true,
         paging: true,
         searching: true,
@@ -241,14 +548,12 @@ $(function () {
             {
                 data: 'vulnerabilities',
                 render: function (data) {
-                    data: 'vulnerabilities',
-                        render: function (data) {
-                            if (data != null && Array.isArray(data)) {
-                                return data.join(', ');
-                            } else {
-                                return data;
-                            }
-                        },
+                    if (data != null && Array.isArray(data)) {
+                        return data.join(', ');
+                    } else {
+                        return data;
+                    }
+                },
                 defaultContent: ''
             },
             {
@@ -268,7 +573,7 @@ $(function () {
         ]
     }).columns.adjust().draw();
 
-    /* Request provinces data for provinces select */
+    // Request provinces data for provinces select
     $.getJSON('json/provinces.json', function (data) {
         var select = $('#provinceSelect');
 
@@ -279,336 +584,75 @@ $(function () {
         $("#provinceSelect").val("Gipuzcoa");
     });
 
-    /* Delete company event */
-    $('#companiesTable').on('click', '.btn-delete-company', function () {
-        const row = $(this).closest('tr');
-        const _id = companiesTable.row(row).data()._id;
+    // Delete company event
+    $('#companiesTable').on('click', '.btn-delete-company', deleteCompany);
 
-        $.ajax({
-            url: `/api/deleteCompany/${_id}`,
-            method: 'DELETE',
-            success: function (response) {
-                // update table
-                companiesTable.row(row).remove().draw();
+    // Add new company form validation and request
+    $("#companyForm").on('submit', submitCompanyForm);
 
-                notify("success", "Company successfully deleted");
-            },
-            error: function (error) {
-                notify("danger", "Error while deleting company");
-                console.error('Error on AJAX request: ', error.responseText);
+    // Change modal data base on clicked button (add company or edit company)
+    $("#companyModal").on("show.bs.modal", changeCompanyModalData);
+
+    // Reset modal styles when closing
+    $("#companyModal").on("hidden.bs.modal", resetCompanyModalStyles);
+
+    // Update filename extension based on radio button click
+    $('#exportFormat input:radio').on("click", updateFileExtensionText);
+
+    $("#confirmExportCompanies").on("click", exportCompanies);
+
+    // File upload drag and drop managing
+    let dropZone = $("#dropZone");
+    let innerDropZone = $("#innerDropZone")
+    dropZone
+        .on("dragenter", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            dropZone.addClass("drop-zone-dragenter");
+            innerDropZone.addClass("inner-drop-zone-dragenter");
+        })
+        .on("dragover", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        })
+        .on("dragleave", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            var dropZoneRect = dropZone[0].getBoundingClientRect();
+            if (
+                event.relatedTarget === null ||
+                !dropZone[0].contains(event.relatedTarget) ||
+                event.clientY < dropZoneRect.top ||
+                event.clientY >= dropZoneRect.bottom ||
+                event.clientX < dropZoneRect.left ||
+                event.clientX >= dropZoneRect.right
+            ) {
+                dropZone.removeClass("drop-zone-dragenter");
+                innerDropZone.removeClass("inner-drop-zone-dragenter");
             }
-        });
-    });
+        })
+        .on("drop", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
 
-    /* Add new company form validation and request */
-    $("#companyForm").on('submit', function (event) {
-        let action = $("#companyModal").data("action");
-
-        event.preventDefault();
-
-        let error = 0;
-        let formData = new FormData(event.target);
-        let formProps = Object.fromEntries(formData);
-
-        // check whether the NIF format is correct or not
-        if (nifPattern.test(formProps.NIF)) {
-            $("#NIFFeedback").text("");
-            $("#NIF").removeClass("is-invalid").addClass("is-valid");
-        } else {
-            $("#NIF").removeClass("is-valid").addClass("is-invalid");
-            $("#NIFFeedback").text("Please use correct format (e.g. A01234567).");
-            error = 1;
-        }
-
-        // check whether the name is empty or not
-        if (formProps.name === "") {
-            $("#companyName").removeClass("is-valid").addClass("is-invalid");
-            error = 1;
-        } else {
-            $("#companyName").removeClass("is-invalid").addClass("is-valid");
-        }
-
-        // check whether a province has been selected or not
-        if (formProps.province) {
-            $(".invalid-province-feedback-active")
-                .css("display", "none")
-                .removeClass("invalid-province-feedback-active");
-            $("#provinceSelect")
-                .removeClass("select-invalid")
-                .addClass("select-valid");
-        } else {
-            $(".invalid-province-feedback").css("display", "block");
-            $("#provinceSelect")
-                .removeClass("select-valid")
-                .addClass("select-invalid");
-            setTimeout(function () { // needed for switch from display none to block
-                setTimeout(function () { // needed for switch from display none to block
-                    $(".invalid-province-feedback").addClass("invalid-province-feedback-active");
-                }, 10);
-            }
-
-        // check whether the website format is correct or not
-        if (urlPattern.test(formProps.website)) {
-                $("#website").removeClass("is-invalid");
-                $("#website").addClass("is-valid");
-            } else {
-                $("#website").removeClass("is-valid");
-                $("#website").addClass("is-invalid");
-                error = 1;
-            }
-
-            if (!error) {
-                if (action === "create") {
-                    // check whether the NIF is already registered or not
-                    $.ajax({
-                        url: `/api/findByNIF/${formProps.NIF}`,
-                        method: "GET",
-                        success: function (response) {
-                            success: function (response) {
-                                if (response.data) {
-                                    $("#NIF").removeClass("is-valid").addClass("is-invalid");
-                                    $("#NIFFeedback").text("A company with the specified NIF number already exists.");
-                                } else {
-                                    // insert new company
-                                    $.ajax({
-                                        url: "/api/insertCompany",
-                                        method: 'POST',
-                                        data: formProps,
-                                        success: function (response) {
-                                            notify("success", "Company added successfully");
-
-                                            // close modal
-                                            $("#companyModal").modal("hide");
-
-                                            // refresh table
-                                            companiesTable.draw();
-                                        },
-                                        error: function (error) {
-                                            notify("danger", "Error while adding the new company");
-                                            console.error("Error on AJAX request: ", error.responseText);
-                                        }
-                                    });
-                                }
-                            },
-                            error: function (error) {
-                                notify("danger", `Error while finding a company with NIF ${formProps.NIF}`);
-                                console.error("Error on AJAX request: ", error.responseText);
-                            }
-                        });
-                } else { // edit company data
-                    // update data
-                    formProps._id = $("#companyModal").attr("data-id");
-
-                    $.ajax({
-                        url: "/api/updateCompany",
-                        method: "PUT",
-                        data: formProps,
-                        success: function (response) {
-                            notify("success", "Company updated successfully");
-
-                            // close modal
-                            $("#companyModal").modal("hide");
-
-                            // refresh table
-                            companiesTable.draw();
-                        },
-                        error: function (error) {
-                            if (error.status === 409) { // NIF already exists
-                                $("#NIF").removeClass("is-valid").addClass("is-invalid");
-                                $("#NIFFeedback").text("A company with the specified NIF number already exists.");
-                            } else {
-                                notify("danger", "Error while updating company data");
-                                console.error("Error on AJAX request: ", error.responseText);
-                            }
-                        }
-                    });
-                }
-            }
-        });
-
-    // change modal data base on clicked button (add company or edit company)
-    $("#companyModal").on("show.bs.modal", function (event) {
-        let action = $(event.relatedTarget).data("action");
-        const title = $("#companyModalTitle");
-        const submitBtn = $("#saveCompanyBtn");
-
-        if (action === "create") {
-            $(this).data("action", "create");
-            $(this).removeAttr("data-id");
-
-            title.text("Add company");
-            submitBtn.text("Add company");
-            $("#NIF").val("");
-            $("#companyName").val("");
-            $("#provinceSelect").val("");
-            $("#website").val("");
-        } else { // edit company data
-            const row = $(event.relatedTarget).closest('tr');
-            const rowData = companiesTable.row(row).data();
-
-            $(this).data("action", "edit");
-            $(this).attr("data-id", rowData._id);
-
-            title.text("Edit company");
-            submitBtn.text("Save changes");
-            $("#NIF").val(rowData.NIF);
-            $("#companyName").val(rowData.name);
-            $("#provinceSelect").val(rowData.province);
-            $("#website").val(rowData.website);
-        }
-    });
-
-    // reset modal styles when closing
-    $("#companyModal").on("hidden.bs.modal", function () {
-        // clear form styles/values
-        $("#companyForm input").each(function () {
-            $(this).removeClass("is-valid is-invalid");
-        });
-
-        $("#provinceSelect").removeClass("select-valid select-invalid");
-        $(".invalid-province-feedback").css("display", "none").removeClass("invalid-province-feedback-active");
-    });
-
-    // update filename extension based on radio button click
-    $('#exportFormat input:radio').on("click", function () {
-        let extension = $(this).val();
-        $("#extension").text("." + extension);
-    });
-
-    $("#confirmExportCompanies").on("click", async function (event) {
-        let format = $('input[name="exportFormat"]:checked').val();
-        let dataToExport = $('input[name="exportDataAmount"]:checked').val();
-        let data, exportData, allKeys, headerRow, bodyRows;
-
-        // select data
-        if (dataToExport === "page") {
-            data = companiesTable.rows().data().toArray();
-        } else if (dataToExport === "all") {
-            try {
-                let response = await $.ajax({
-                    url: '/api/getCompanies',
-                    method: 'GET',
-                    data: {
-                        filter: companiesTable.search(),
-                        sort: companiesTable.order()
-                    }
-                });
-
-                data = response.data;
-            } catch (error) {
-                notify("danger", "Error while retrieving information about the companies");
-                console.error("Error on AJAX request: ", error.responseText);
-                return;
-            }
-        }
-
-        // delete _id before exporting
-        data.forEach(document => delete document._id);
-
-        // format
-        switch (format) {
-            case "csv":
-                allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
-
-                headerRow = allKeys.join(',');
-
-                bodyRows = data.map(obj => {
-                    return allKeys.map(key => {
-                        return `"${obj[key] || ''}"`; // if key does not exist, simply write empty string
-                    }).join(',');
-                });
-        });
-
-    exportData = [headerRow, ...bodyRows].join('\n');
-    break;
-
-            case "json":
-    exportData = JSON.stringify(data);
-    break;
-
-            case "txt":
-    allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
-
-    headerRow = allKeys.join('\t');
-
-    bodyRows = data.map(obj => {
-        return allKeys.map(key => {
-            return `"${obj[key] || ''}"`; // if key does not exist, simply write empty string
-        }).join('\t');
-    });
-});
-
-exportData = [headerRow, ...bodyRows].join('\n');
-            default:
-break;
-        }
-
-// create temporal anchor for the download
-let a = document.createElement("a");
-a.href = "data:application/json;charset=utf-8," + encodeURIComponent(exportData);
-a.download = $("#filename").val() + "." + format;
-a.download = $("#filename").val() + "." + format;
-a.style.display = "none";
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-    });
-
-let dropZone = $("#dropZone");
-let innerDropZone = $("#innerDropZone")
-
-dropZone
-    .on("dragenter", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        dropZone.addClass("drop-zone-dragenter");
-        innerDropZone.addClass("inner-drop-zone-dragenter");
-    })
-    .on("dragover", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    })
-    .on("dragleave", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        var dropZoneRect = dropZone[0].getBoundingClientRect();
-        if (
-            event.relatedTarget === null ||
-            !dropZone[0].contains(event.relatedTarget) ||
-            event.clientY < dropZoneRect.top ||
-            event.clientY >= dropZoneRect.bottom ||
-            event.clientX < dropZoneRect.left ||
-            event.clientX >= dropZoneRect.right
-        ) {
             dropZone.removeClass("drop-zone-dragenter");
             innerDropZone.removeClass("inner-drop-zone-dragenter");
-        }
-    })
-    .on("drop", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
+            prepareFiles(event.originalEvent.dataTransfer.files);
+        });
 
-        dropZone.removeClass("drop-zone-dragenter");
-        innerDropZone.removeClass("inner-drop-zone-dragenter");
-        prepareFiles(event.originalEvent.dataTransfer.files);
+    $("#importFileBtn").on("click", function () {
+        $("#importFileInput").click();
     });
 
-$("#importFileBtn").on("click", function () {
-    $("#importFileInput").click();
-});
+    $("#importFileInput").on("change", function () {
+        prepareFiles(this.files);
+    });
 
-$("#importFileInput").on("change", function () {
-    prepareFiles(this.files);
-});
+    $("#uploadImport").on("click", function () {
+        uploadFiles(companiesTable);
+    });
 
-$("#uploadImport").on("click", function () {
-    uploadFiles(companiesTable);
-});
-
-// reset modal styles when closing
-$("#importCompanyModal").on("hidden.bs.modal", function () {
-    clearFileList();
-    $("#uploadImport").prop("disabled", false);
-});
+    // Reset import companies modal styles when closing
+    $("#importCompanyModal").on("hidden.bs.modal", resetImportCompanyModalStyles)
 });

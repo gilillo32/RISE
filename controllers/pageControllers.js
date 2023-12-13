@@ -2,6 +2,154 @@
 const Company = require("../models/company");
 const columnNames = ["NIF", "name", "province", "website", "lastScanDate", "vulnerabilties"];
 
+const NIFPattern = /^[A-Z]\d{8}$/;
+const webPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
+
+const insertCompaniesCsvOrTxt = async file => {
+    let fileContent, lines;
+    let regexp = /("[^"]*")/g;
+
+    // Read file content
+    fileContent = file.buffer.toString("utf-8");
+    lines = fileContent.split('\n');
+
+    // Check headers
+    headers = lines[0].match(regexp).map(value => value.slice(1, -1));
+
+    if (!validateKeys(Company, headers)) {
+        throw { statusCode: 400, message: "Invalid or missing headers" };
+    }
+
+    // Process each line
+    const response = {
+        totalRows: 0,
+        insertedRows: 0,
+        errors: []
+    };
+    const validCompanies = [];
+    let values;
+
+    for (let i = 1; i < lines.length; i++) {
+        if (!lines[i]) continue; // skip blank lines
+
+        response.totalRows++;
+
+        values = lines[i].match(regexp).map(value => value.replace(/"/g, ''));
+
+        const NIF = values[headers.indexOf("NIF")];
+        const website = values[headers.indexOf("website")];
+
+        // Verify NIF format
+        if (!NIFPattern.test(NIF)) {
+            response.errors.push(`Row ${i + 1}: Incorrect NIF format "${NIF}".`);
+            continue;
+        }
+
+        // Verify web format
+        if (!webPattern.test(website)) {
+            response.errors.push(`Row ${i + 1}: Invalid web format "${website}"`);
+            continue;
+        }
+
+        // Check if company with same NIF exist
+        const nifExists = await localFindByNIF(NIF);
+        if (nifExists) {
+            response.errors.push(`Row ${i + 1}: A company with NIF "${NIF}" already exists in the DB.`)
+            continue;
+        }
+
+        // Create company document
+        const company = {}
+
+        for (let i = 0; i < headers.length; i++) {
+            const key = headers[i];
+            const value = values[i];
+            company[key] = value;
+        }
+
+        companyInstance = new Company(company);
+        validCompanies.push(companyInstance);
+    }
+
+    // Insert valid data in the DB
+    if (validCompanies.length > 0) {
+        const result = await Company.insertMany(validCompanies);
+        response.insertedRows = result.length;
+    }
+
+    return response;
+}
+
+const insertCompaniesJson = async file => {
+    const data = JSON.parse(file.buffer);
+    const response = {
+        totalRows: data.length,
+        insertedRows: 0,
+        errors: []
+    };
+
+    let validCompanies = [];
+
+    for (const [index, company] of data.entries()) {
+        // Check if object keys are valid
+        if (!validateKeys(Company, Object.keys(company))) {
+            response.errors.push(`Object ${index}: Invalid or missing headers`);
+            continue;
+        }
+
+        // Verify NIF format
+        if (!NIFPattern.test(company.NIF)) {
+            response.errors.push(`Object ${index}: Incorrect NIF format "${company.NIF}".`);
+            continue;
+        }
+
+        // Verify web format
+        if (!webPattern.test(company.website)) {
+            response.errors.push(`Object ${index}: Invalid web format "${company.website}"`);
+            continue;
+        }
+
+        // Check if company with same NIF exist
+        const nifExists = await localFindByNIF(company.NIF);
+        if (nifExists) {
+            response.errors.push(`Object ${index}: A company with NIF "${company.NIF}" already exists in the DB.`)
+            continue;
+        }
+
+        companyInstance = new Company(company);
+        validCompanies.push(companyInstance);
+    };
+
+    // Insert valid data in the DB
+    if (validCompanies.length > 0) {
+        const result = await Company.insertMany(validCompanies);
+        response.insertedRows = result.length;
+    }
+
+    return response;
+}
+
+/**
+ * Verifies if the key array exists in the schema passed by parameter.
+ * In addition, it checks if at least the fields required by the schema are present in the key array.
+ * @param {*} schema mongoDB schema.
+ * @param {*} keys set of keys.
+ * @returns true <==> whole key array exists in the schema and required fields are present in the key array. Otherwise fase.
+ */
+function validateKeys(schema, keys) {
+    schemaKeys = Object.keys(schema.schema.paths);
+    requiredSchemaKeys = schemaKeys.filter(key => schema.schema.paths[key].isRequired);
+
+    // Check if every key is in the schema
+    const everyKeyInSchema = keys.every(key => schemaKeys.includes(key));
+    if (!everyKeyInSchema) return false;
+
+    // Verify if every required key exist
+    const everyRequiredKeyExists = requiredSchemaKeys.every(requiredKey => keys.includes(requiredKey));
+
+    return everyRequiredKeyExists;
+}
+
 const localFindByNIF = async (nif) => {
     try {
         const existingCompany = await Company.findOne({ 'NIF': nif });
@@ -131,114 +279,47 @@ const insertCompany = async (req, res) => {
         res.json({ success: true, message: `company with NIF ${company.NIF} added successfully` });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: `Errow while adding company with NIF ${company.NIF}` });
+        res.status(500).json({ success: false, message: `Error while adding company with NIF ${company.NIF}` });
     }
 }
 
 const importCompanyFile = async (req, res) => {
     const file = req.file;
 
-
     // Validate file extension
     const fileExtension = file.originalname.split('.').pop().toLowerCase();
-    let fileContent, lines;
-    switch (fileExtension) {
-        case "csv":
-            // Read file content
-            fileContent = file.buffer.toString("utf-8");
-            lines = fileContent.split('\n');
 
-            // Check headers
-            headers = lines[0].match(/(?:[^\s"]+|"[^"]*")+/g).map(value => value.replace(/"/g, ''));
-            break;
-
-        case "json":
-            return res.status(400).json({ error: "Not implemented yet" });
-            break;
-
-        case "txt":
-            // Read file content
-            fileContent = file.buffer.toString("utf-8");
-            lines = fileContent.split('\n');
-
-            // Check headers
-            headers = lines[0].match(/(?:[^\s"]+|"[^"]*")+/g).map(value => value.replace(/"/g, ''));
-
-            break;
-        default:
-            return res.status(400).json({ error: "File type no allowed" });
+    // Check file size
+    if (file.size > 1000000000) {
+        return res.status(400).json({ error: `File ${file.originalname} exceeds the allowed maximum file size (1 GB)` });
     }
 
+    // Process file depending on the extension
+    try {
+        switch (fileExtension) {
+            case "csv":
+            case "txt":
+                result = await insertCompaniesCsvOrTxt(file);
+                break;
 
+            case "json":
+                result = await insertCompaniesJson(file);
 
-    if (!headers.every((header, index) => header === columnNames[index])) {
-        return res.status(400).json({ error: `Invalid column headers. Headers must be ${columnNames.join(", ")}` });
-    }
+                break;
 
-    // Process each line
-    const NIFPattern = /^[A-Z]\d{8}$/;
-    const webPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
-
-    const validCompanies = [];
-    const errorMessages = [];
-
-    let numCompanies = 0;
-
-    for (let i = 1; i < lines.length; i++) {
-        if (!lines[i]) continue; // skip blank lines
-
-        numCompanies++;
-
-        const values = lines[i].match(/(?:[^\s"]+|"[^"]*")+/g).map(value => value.replace(/"/g, ''));
-
-        // Verify NIF format
-        if (!NIFPattern.test(values[0])) {
-            errorMessages.push(`Row ${i + 1}: Incorrect NIF format "${values[0]}".`);
-            continue;
+            default:
+                return res.status(400).json({ error: "File type no allowed" });
         }
 
-        // Verify web format
-        if (!webPattern.test(values[3])) {
-            errorMessages.push(`Row ${i + 1}: Invalid web format "${values[3]}"`);
-            continue;
+        if (result.errors.length > 0) {
+            return res.status(207).json(result); // 207 => partial success
         }
 
-        const nifExists = await localFindByNIF(values[0]);
-        if (nifExists) {
-            errorMessages.push(`Row ${i + 1}: A company with NIF "${values[0]}" already exists in the DB.`)
-            continue;
-        }
-
-        // Create document for the database
-        const company = {
-            NIF: values[0],
-            name: values[1],
-            province: values[2],
-            website: values[3]
-        }
-
-        validCompanies.push(company);
+        res.status(200).json(result);
+    } catch (error) {
+        const statusCode = error.statusCode || 500;
+        res.status(statusCode).json({ error: error.message });
     }
-
-    let insertedCount = 0;
-
-    // Insert valid data in the DB
-    if (validCompanies.length > 0) {
-        const result = await Company.insertMany(validCompanies);
-        insertedCount = result.length;
-    }
-
-    const response = {
-        totalRows: numCompanies, // except headers
-        insertedRows: insertedCount,
-        errors: errorMessages
-    }
-
-    if (errorMessages.length > 0) {
-        return res.status(207).json(response); // 207 => partial success
-    }
-
-    res.status(200).json(response);
 }
 
 const updateCompany = async (req, res) => {
