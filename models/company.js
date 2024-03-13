@@ -1,18 +1,18 @@
 const mongoose = require('mongoose')
 
 const companySchema = new mongoose.Schema({
-    NIF: {
+    name: {
         type: String,
         required: true
     },
-    name: {
+    NIF: {
         type: String,
         required: true
     },
     province: {
         type: String,
     },
-    website: {
+    web: {
         type: String,
         required: true
     },
@@ -21,7 +21,6 @@ const companySchema = new mongoose.Schema({
     },
     vulnerabilities: {
         type: [String],
-        unique: true
     }
 })
 

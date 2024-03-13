@@ -1,5 +1,4 @@
 
-const nifPattern = /^[A-Z]\d{8}$/;
 const urlPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
 
 let companiesTable;
@@ -267,16 +266,6 @@ function submitCompanyForm(event) {
     let formData = new FormData(event.target);
     let formProps = Object.fromEntries(formData);
 
-    // check whether the NIF format is correct or not
-    if (nifPattern.test(formProps.NIF)) {
-        $("#NIFFeedback").text("");
-        $("#NIF").removeClass("is-invalid").addClass("is-valid");
-    } else {
-        $("#NIF").removeClass("is-valid").addClass("is-invalid");
-        $("#NIFFeedback").text("Please use correct format (e.g. A01234567).");
-        error = 1;
-    }
-
     // check whether the name is empty or not
     if (formProps.name === "") {
         $("#companyName").removeClass("is-valid").addClass("is-invalid");
@@ -305,7 +294,7 @@ function submitCompanyForm(event) {
     }
 
     // check whether the website format is correct or not
-    if (urlPattern.test(formProps.website)) {
+    if (urlPattern.test(formProps.web)) {
         $("#website").removeClass("is-invalid");
         $("#website").addClass("is-valid");
     } else {
@@ -409,7 +398,7 @@ function changeCompanyModalData(event) {
         $("#NIF").val(rowData.NIF);
         $("#companyName").val(rowData.name);
         $("#provinceSelect").val(rowData.province);
-        $("#website").val(rowData.website);
+        $("#website").val(rowData.web);
     }
 }
 
@@ -537,7 +526,7 @@ $(function () {
             { data: 'name', defaultContent: '' },
             { data: 'province', defaultContent: '' },
             {
-                data: 'website',
+                data: 'web',
                 render: function (data) {
                     return `<a href="//${data}">${data}</a>`;
                 },

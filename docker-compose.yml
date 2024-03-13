@@ -9,3 +9,6 @@ services:
             - /data/db
         restart: always
     
+    nuclei:
+        image: projectdiscovery/nuclei:latest
+        container_name: Nuclei

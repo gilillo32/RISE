@@ -50,7 +50,7 @@ app.use("/js", express.static(path.join(__dirname, "node_modules/datatables.net/
 app.use("/css", express.static(path.join(__dirname, "node_modules/datatables.net-bs5/css")));
 app.use("/js", express.static(path.join(__dirname, "node_modules/datatables.net-bs5/js")));
 
-const PORT = process.env.PORT;
+const PORT = process.env.APP_PORT;
 app.listen(PORT, () => {
    console.log('App listening on port ' + PORT);
 })

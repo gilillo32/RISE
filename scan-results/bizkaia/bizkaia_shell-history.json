@@ -1,0 +1,182 @@
+[
+  {
+    "template": "http/misconfiguration/shell-history.yaml",
+    "template-url": "https://templates.nuclei.sh/public/shell-history",
+    "template-id": "shell-history",
+    "template-path": "/home/botxan/nuclei-templates/http/misconfiguration/shell-history.yaml",
+    "info": {
+      "name": "Shell History",
+      "author": [
+        "pentest_swissky",
+        "geeknik"
+      ],
+      "tags": [
+        "misconfig"
+      ],
+      "description": "Discover history for bash, ksh, sh, and zsh",
+      "severity": "low",
+      "metadata": {
+        "max-request": 4
+      }
+    },
+    "type": "http",
+    "host": "http://www.condalsgroup.com",
+    "matched-at": "http://www.condalsgroup.com/.bash_history",
+    "request": "GET /.bash_history HTTP/1.1\r\nHost: www.condalsgroup.com\r\nUser-Agent: Mozilla/5.0 (X11; OpenBSD i386) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36\r\nConnection: close\r\nAccept: */*\r\nAccept-Language: en\r\nAccept-Encoding: gzip\r\n\r\n",
+    "response": "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 335\r\nAccept-Ranges: bytes\r\nDate: Wed, 22 Nov 2023 10:37:25 GMT\r\nEtag: \"14f-5dfc152facc44\"\r\nLast-Modified: Tue, 24 May 2022 12:44:57 GMT\r\nServer: Apache/2.4.6 (CentOS) OpenSSL/1.0.2k-fips PHP/7.0.30\r\n\r\n#1532419751\npwd\n#1532419754\nls -larht\n#1634644917\n?\n#1634644918\nls\n#1634645007\nchmod -R 755 ./wp-content\n#1634645045\ncd /wp-content\n#1634645048\nls\n#1634645058\ncd wp-content/\n#1634645058\nls\n#1634645075\nchmod -R 755 ./plugins\n#1634645081\nsudo\n#1634645087\nsudo chmod -R 755 ./plugins\n#1653390976\nsu \n#1653390987\nsu jraja\n#1653396297\nexit\n",
+    "ip": "212.92.56.28",
+    "timestamp": "2023-11-22T11:37:26.190959517+01:00",
+    "curl-command": "curl -X 'GET' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (X11; OpenBSD i386) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36' 'http://www.condalsgroup.com/.bash_history'",
+    "matcher-status": true
+  },
+  {
+    "template": "http/misconfiguration/shell-history.yaml",
+    "template-url": "https://templates.nuclei.sh/public/shell-history",
+    "template-id": "shell-history",
+    "template-path": "/home/botxan/nuclei-templates/http/misconfiguration/shell-history.yaml",
+    "info": {
+      "name": "Shell History",
+      "author": [
+        "pentest_swissky",
+        "geeknik"
+      ],
+      "tags": [
+        "misconfig"
+      ],
+      "description": "Discover history for bash, ksh, sh, and zsh",
+      "severity": "low",
+      "metadata": {
+        "max-request": 4
+      }
+    },
+    "type": "http",
+    "host": "https://www.gorkaizagirre.com",
+    "matched-at": "https://www.gorkaizagirre.com/.bash_history",
+    "request": "GET /.bash_history HTTP/1.1\r\nHost: www.gorkaizagirre.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36\r\nConnection: close\r\nAccept: */*\r\nAccept-Language: en\r\nAccept-Encoding: gzip\r\n\r\n",
+    "response": "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 15\r\nAccept-Ranges: bytes\r\nDate: Wed, 22 Nov 2023 10:39:36 GMT\r\nEtag: \"f-5d186f3be8ae6\"\r\nLast-Modified: Wed, 24 Nov 2021 11:13:48 GMT\r\nServer: Apache/2.4.43 (FreeBSD) OpenSSL/1.1.1d-freebsd\r\n\r\nls -l\npwd\nexit\n",
+    "ip": "194.30.38.9",
+    "timestamp": "2023-11-22T11:39:36.399373124+01:00",
+    "curl-command": "curl -X 'GET' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36' 'https://www.gorkaizagirre.com/.bash_history'",
+    "matcher-status": true
+  },
+  {
+    "template": "http/misconfiguration/shell-history.yaml",
+    "template-url": "https://templates.nuclei.sh/public/shell-history",
+    "template-id": "shell-history",
+    "template-path": "/home/botxan/nuclei-templates/http/misconfiguration/shell-history.yaml",
+    "info": {
+      "name": "Shell History",
+      "author": [
+        "pentest_swissky",
+        "geeknik"
+      ],
+      "tags": [
+        "misconfig"
+      ],
+      "description": "Discover history for bash, ksh, sh, and zsh",
+      "severity": "low",
+      "metadata": {
+        "max-request": 4
+      }
+    },
+    "type": "http",
+    "host": "https://www.ingeperfil.com",
+    "matched-at": "https://www.ingeperfil.com/.bash_history",
+    "request": "GET /.bash_history HTTP/1.1\r\nHost: www.ingeperfil.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36\r\nConnection: close\r\nAccept: */*\r\nAccept-Language: en\r\nAccept-Encoding: gzip\r\n\r\n",
+    "response": "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 69\r\nAccept-Ranges: bytes\r\nDate: Wed, 22 Nov 2023 10:40:02 GMT\r\nEtag: \"45-571bc6a573266\"\r\nLast-Modified: Tue, 24 Jul 2018 10:42:15 GMT\r\nServer: Apache\r\n\r\ncd ingeperfil/\ntouch test.txt\nrm test.txt \npwd\nexit\nls -la\nexit\nexit\n",
+    "ip": "62.97.114.221",
+    "timestamp": "2023-11-22T11:40:02.941103995+01:00",
+    "curl-command": "curl -X 'GET' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36' 'https://www.ingeperfil.com/.bash_history'",
+    "matcher-status": true
+  },
+  {
+    "template": "http/misconfiguration/shell-history.yaml",
+    "template-url": "https://templates.nuclei.sh/public/shell-history",
+    "template-id": "shell-history",
+    "template-path": "/home/botxan/nuclei-templates/http/misconfiguration/shell-history.yaml",
+    "info": {
+      "name": "Shell History",
+      "author": [
+        "pentest_swissky",
+        "geeknik"
+      ],
+      "tags": [
+        "misconfig"
+      ],
+      "description": "Discover history for bash, ksh, sh, and zsh",
+      "severity": "low",
+      "metadata": {
+        "max-request": 4
+      }
+    },
+    "type": "http",
+    "host": "https://www.newrest.eu",
+    "matched-at": "https://www.newrest.eu/.bash_history",
+    "request": "GET /.bash_history HTTP/1.1\r\nHost: www.newrest.eu\r\nUser-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2224.3 Safari/537.36\r\nConnection: close\r\nAccept: */*\r\nAccept-Language: en\r\nAccept-Encoding: gzip\r\n\r\n",
+    "response": "HTTP/1.1 200 OK\r\nConnection: close\r\nAccept-Ranges: bytes\r\nCache-Control: max-age=2592000\r\nDate: Wed, 22 Nov 2023 10:40:40 GMT\r\nExpires: Fri, 22 Dec 2023 10:40:40 GMT\r\nLast-Modified: Mon, 03 Sep 2018 09:19:50 GMT\r\nServer: Apache\r\nVary: X-Forwarded-Proto,Accept-Encoding\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: SAMEORIGIN\r\nX-Xss-Protection: 1; mode=block\r\n\r\n#1535469291\n# [2018-08-28 17:14:51] begin session bchanour, UserFrom: rhr, HostFrom: aws-nwradm1, tty : /dev/pts/2\n#1535469294\nid\n#1535469303\ncd /www.newrest.eu/\n#1535469310\nwhich php\n#1535469315\nphp version\n#1535469321\nphp -version\n#1535469344\nw\n#1535469376\n# [2018-08-28 17:16:16] end session bchanour, UserFrom: rhr, HostFrom: aws-nwradm1, Since: 2018-08-28 16:52, tty : /dev/pts/2\n#1535560898\n# [2018-08-29 18:41:38] begin session bchanour, UserFrom: root, HostFrom: aws-nwradm1, tty : /dev/pts/3\n#1535560903\n# [2018-08-29 18:41:43] end session bchanour, UserFrom: root, HostFrom: aws-nwradm1, Since: 2018-08-29 15:10, tty : /dev/pts/3\n#1535561364\n# [2018-08-29 18:49:24] begin session bchanour, UserFrom: root, HostFrom: aws-nwradm1, tty : /dev/pts/3\n#1535561367\npwd\n#1535561382\ncd /www.newrest.eu/htdocs/wp-content/uploads/\n#1535561408\nln -s /gp-pp.newrest.eu/bin/apache-2.4.34/htdocs/wp-content/uploads gp-pp.newrest.eu\n#1535561662\n# [2018-08-29 18:54:22] end session bchanour, UserFrom: root, HostFrom: aws-nwradm1, Since: 2018-08-29 15:10, tty : /dev/pts/3\n#1535958937\n# [2018-09-03 09:15:37] begin session bchanour, UserFrom: root, HostFrom: aws-nwradm1, tty : /dev/pts/0\n#1535958939\n# [2018-09-03 09:15:39] end session bchanour, UserFrom: root, HostFrom: aws-nwradm1, Since: 2018-09-03 09:06, tty : /dev/pts/0\n#1535958943\n# [2018-09-03 09:15:43] begin session bchanour, UserFrom: root, HostFrom: aws-nwradm1, tty : /dev/pts/0\n#1535958958\ncd /www.newrest.eu/htdocs/wp-content/uploads\n#1535958997\n# [2018-09-03 09:16:37] end session bchanour, UserFrom: root, HostFrom: aws-nwradm1, Since: 2018-09-03 09:06, tty : /dev/pts/0\n#1535959063\n# [2018-09-03 09:17:43] begin session bchanour, UserFrom: root, HostFrom: aws-nwradm1, tty : /dev/pts/0\n#1535959185\nmount --bind /lprh-pp.newrest.eu/bin/apache-2.4.34/htdocs/wp-content/uploads/ /www.newrest.eu/htdocs/wp-content/uploads/gp-pp.newrest.eu\n#1535959190\n# [2018-09-03 09:19:50] end session bchanour, UserFrom: root, HostFrom: aws-nwradm1, Since: 2018-09-03 09:06, tty : /dev/pts/0\n",
+    "ip": "13.69.228.9",
+    "timestamp": "2023-11-22T11:40:40.455527781+01:00",
+    "curl-command": "curl -X 'GET' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2224.3 Safari/537.36' 'https://www.newrest.eu/.bash_history'",
+    "matcher-status": true
+  },
+  {
+    "template": "http/misconfiguration/shell-history.yaml",
+    "template-url": "https://templates.nuclei.sh/public/shell-history",
+    "template-id": "shell-history",
+    "template-path": "/home/botxan/nuclei-templates/http/misconfiguration/shell-history.yaml",
+    "info": {
+      "name": "Shell History",
+      "author": [
+        "pentest_swissky",
+        "geeknik"
+      ],
+      "tags": [
+        "misconfig"
+      ],
+      "description": "Discover history for bash, ksh, sh, and zsh",
+      "severity": "low",
+      "metadata": {
+        "max-request": 4
+      }
+    },
+    "type": "http",
+    "host": "https://www.transportesvaliente.es",
+    "matched-at": "https://www.transportesvaliente.es/.bash_history",
+    "request": "GET /.bash_history HTTP/1.1\r\nHost: www.transportesvaliente.es\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2762.73 Safari/537.36\r\nConnection: close\r\nAccept: */*\r\nAccept-Language: en\r\nAccept-Encoding: gzip\r\n\r\n",
+    "response": "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 2258\r\nAccept-Ranges: bytes\r\nDate: Wed, 22 Nov 2023 10:41:30 GMT\r\nEtag: \"8d2-5f378b22390e1\"\r\nLast-Modified: Mon, 30 Jan 2023 10:29:53 GMT\r\nServer: Apache\r\n\r\nls\ncd es\nzip -r transportes.zip .\ncd ..\nls\nnano robots.txt \ncp robots.txt es/\nnano es/robots.txt \nmkdir en\nmkdir fr\nmkdir de\nunzip es/transportes.zip /en\nunzip es/transportes.zip en/\nunzip es/transportes.zip en/.\nmv es/transportes.zip .\nls\nunzip transportes.zip en/\ncd en\nunzip ../transportes.zip .\ncp ../transportes.zip .\nunzip transportes.zip \nmv transportes.zip ../fr/\ncd ../fr/\nls\nunzip transportes.zip \nmv transportes.zip ../de/\ncd ../de/\nunzip transportes.zip \nrm -r transportes.zip \ncd ..\ncp robots.txt en/\ncp robots.txt fr/\ncp robots.txt de/\ncd de/\nnano .htaccess \nnano .htaccess \nrm -r wp-content/plugins/better-wp-security/\ncd\nls\ncd fr/wp-content/plugins/\nrm -r better-wp-security/\nls\nls\nls\ncd \ncd fr/\nnano .htaccess \nnano robots.txt \nnano robots.txt \ncp robots.txt ../en/\ncp robots.txt ../de/\ncd ../en/\nrm -r wp-content/plugins/better-wp-security/\nclear\nexit\ndf -j\ndf -h\ncd es/\nls\ncd wp-content/uploads/ithemes-security/backups/\nls\nls\nrm -r transportes.zip \nzip -r tranposrtes.zip es\nls\ncd de/\nls\nnano .htaccess \nnano .htaccess \nexut\nexit\ncp -R es/wp-content/plugins/contact-form-7 en/wp-content/plugins/contact-form-7\nfind /path/to/base/dir -type d -exec chmod 755 {} +\nfind . -type d -exec chmod 755 {} +\nls -l\ncd en/\nls\nls .k\nls -l\nexit\nfind . -type f -exec chmod 644 {} +\npwd\nls\nrm -r tranposrtes.zip \nunzip contact.zip \ncp -R contact-form-7 en/wp-content/plugins/\ncp -R contact-form-7 en/wp-content/plugins/\ncp -R contact-form-7 en/wp-content/plugins/\ncd es/wp-content/cache\nls -l\nrn -r *\nrm -r *\ncp revslider.zip es/wp-content/plugins/\nls\ncd es/wp-content/plugins/\nrm -rfv revslider\nunzip revslider.zip\ncd\ncp revslider.zip en/wp-content/plugins/\ncd en/wp-content/plugins/\nrm -rfv revslider\nunzip revslider.zip\ncd\ncp revslider.zip de/wp-content/plugins/\ncd de/wp-content/plugins/\nrm -rfv revslider\nunzip revslider.zip\ncd\ncp revslider.zip fr/wp-content/plugins/\ncd fr/wp-content/plugins/\nunzip revslider.zip\nrm -rfv revslider\nunzip revslider.zip\ncd\nexit\nls\nzip -r transportesvaliente_23032020.zip ./ -x \"logs\"\nls\nexit\nls\ncd es\nls\ntar -czvf tvaliente_es_010920.tar.gz ./\nls\ncd ../en\nls\ntar -czvf tvaliente_en_010920.tar.gz ./\nls\ncd ../fr\nls\ntar -czvf tvaliente_fr_010920.tar.gz ./\nls\ncd ../de\nls\ntar -czvf tvaliente_de_010920.tar.gz ./\nls\nexit\n",
+    "ip": "217.160.0.19",
+    "timestamp": "2023-11-22T11:41:30.927427833+01:00",
+    "curl-command": "curl -X 'GET' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2762.73 Safari/537.36' 'https://www.transportesvaliente.es/.bash_history'",
+    "matcher-status": true
+  },
+  {
+    "template": "http/misconfiguration/shell-history.yaml",
+    "template-url": "https://templates.nuclei.sh/public/shell-history",
+    "template-id": "shell-history",
+    "template-path": "/home/botxan/nuclei-templates/http/misconfiguration/shell-history.yaml",
+    "info": {
+      "name": "Shell History",
+      "author": [
+        "pentest_swissky",
+        "geeknik"
+      ],
+      "tags": [
+        "misconfig"
+      ],
+      "description": "Discover history for bash, ksh, sh, and zsh",
+      "severity": "low",
+      "metadata": {
+        "max-request": 4
+      }
+    },
+    "type": "http",
+    "host": "https://www.zunibal.com",
+    "matched-at": "https://www.zunibal.com/.bash_history",
+    "request": "GET /.bash_history HTTP/1.1\r\nHost: www.zunibal.com\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2656.18 Safari/537.36\r\nConnection: close\r\nAccept: */*\r\nAccept-Language: en\r\nAccept-Encoding: gzip\r\n\r\n",
+    "response": "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 28\r\nAccept-Ranges: bytes\r\nDate: Wed, 22 Nov 2023 10:41:45 GMT\r\nEtag: \"1c-578cd25c742cd\"\r\nLast-Modified: Mon, 22 Oct 2018 08:36:20 GMT\r\nServer: Apache/2.4.6 (CentOS) OpenSSL/1.0.2k-fips PHP/7.4.33\r\n\r\ncd $home\npwd\nls\nls -l\nsu\nsu\n",
+    "ip": "35.198.91.149",
+    "timestamp": "2023-11-22T11:41:45.944587082+01:00",
+    "curl-command": "curl -X 'GET' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2656.18 Safari/537.36' 'https://www.zunibal.com/.bash_history'",
+    "matcher-status": true
+  }
+]

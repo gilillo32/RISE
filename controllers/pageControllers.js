@@ -2,7 +2,6 @@
 const Company = require("../models/company");
 const columnNames = ["NIF", "name", "province", "website", "lastScanDate", "vulnerabilties"];
 
-const NIFPattern = /^[A-Z]\d{8}$/;
 const webPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
 
 const insertCompaniesCsvOrTxt = async file => {
@@ -17,6 +16,7 @@ const insertCompaniesCsvOrTxt = async file => {
     headers = lines[0].match(regexp).map(value => value.slice(1, -1));
 
     if (!validateKeys(Company, headers)) {
+        console.log(Company, headers);
         throw { statusCode: 400, message: "Invalid or missing headers" };
     }
 
@@ -37,13 +37,7 @@ const insertCompaniesCsvOrTxt = async file => {
         values = lines[i].match(regexp).map(value => value.replace(/"/g, ''));
 
         const NIF = values[headers.indexOf("NIF")];
-        const website = values[headers.indexOf("website")];
-
-        // Verify NIF format
-        if (!NIFPattern.test(NIF)) {
-            response.errors.push(`Row ${i + 1}: Incorrect NIF format "${NIF}".`);
-            continue;
-        }
+        const website = values[headers.indexOf("web")];
 
         // Verify web format
         if (!webPattern.test(website)) {
@@ -97,15 +91,9 @@ const insertCompaniesJson = async file => {
             continue;
         }
 
-        // Verify NIF format
-        if (!NIFPattern.test(company.NIF)) {
-            response.errors.push(`Object ${index}: Incorrect NIF format "${company.NIF}".`);
-            continue;
-        }
-
         // Verify web format
-        if (!webPattern.test(company.website)) {
-            response.errors.push(`Object ${index}: Invalid web format "${company.website}"`);
+        if (!webPattern.test(company.web)) {
+            response.errors.push(`Object ${index}: Invalid web format "${company.web}"`);
             continue;
         }
 
@@ -181,7 +169,7 @@ const getCompanies = async (req, res) => {
                 { NIF: { $regex: searchFilter, $options: 'i' } },
                 { name: { $regex: searchFilter, $options: 'i' } },
                 { province: { $regex: searchFilter, $options: 'i' } },
-                { website: { $regex: searchFilter, $options: 'i' } },
+                { web: { $regex: searchFilter, $options: 'i' } },
                 { vulnerabilities: { $regex: searchFilter, $options: 'i' } },
             ];
         }
@@ -215,7 +203,7 @@ const getCompaniesPage = async (req, res) => {
                 { NIF: { $regex: searchFilter, $options: 'i' } },
                 { name: { $regex: searchFilter, $options: 'i' } },
                 { province: { $regex: searchFilter, $options: 'i' } },
-                { website: { $regex: searchFilter, $options: 'i' } },
+                { web: { $regex: searchFilter, $options: 'i' } },
                 { vulnerabilities: { $regex: searchFilter, $options: 'i' } },
             ];
         }
@@ -273,7 +261,7 @@ const insertCompany = async (req, res) => {
             NIF: company.NIF,
             name: company.name,
             province: company.province,
-            website: company.website
+            web: company.web
         });
 
         res.json({ success: true, message: `company with NIF ${company.NIF} added successfully` });
@@ -332,7 +320,7 @@ const updateCompany = async (req, res) => {
                 NIF: company.NIF,
                 name: company.name,
                 province: company.province,
-                website: company.website
+                web: company.web
             });
             res.json({ success: true, message: `company with _id ${company._id} updated successfully` });
         } else { // there is another company with same NIF => abort
