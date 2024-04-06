@@ -12,3 +12,4 @@ services:
     nuclei:
         image: projectdiscovery/nuclei:latest
         container_name: Nuclei
+        restart: 'no'
