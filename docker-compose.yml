@@ -1,4 +1,3 @@
-version: '3.8'
 services:
     db:
         image: mongo:latest
@@ -6,10 +5,9 @@ services:
         ports:
             - "27017:27017"
         volumes:
-            - /data/db
+            - dbdata:/data/db
         restart: always
     
-    nuclei:
-        image: projectdiscovery/nuclei:latest
-        container_name: Nuclei
-        restart: 'no'
+
+volumes:
+    dbdata:

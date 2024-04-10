@@ -1,0 +1,34 @@
+# Templates with tags to run
+#tags: info
+
+# Templates with tags to exclude
+# exclude-tags: info
+
+# Templates to scan
+#templates:
+#  - cves/
+#  - vulnerabilities/
+#  - misconfiguration/
+
+# Templates to exclude scan
+#exclude:
+#  - vulnerabilities/xxx
+#  - misconfiguration/xxxx
+
+stats: true
+verbose: false
+
+scan-strategy: template-spray
+
+# This flag controls the global rate limit of http requests in nuclei and its default value is 150 requests per second.
+rate-limit: 50
+
+# This flag controls concurrency/parallelism of targets in Nuclei and its default value is 25.
+#
+# IN Host-Spray mode/strategy, this flag controls maximum number of targets to run in parallel at a time
+#
+# IN Template-Spray/Default mode/strategy, this flag controls maximum number of targets to run in parallel for each template
+bulk-size: 50
+
+# Number of templates to run in parallel at a time (IN Template-Spray/Default mode/strategy)
+concurrency: 20
