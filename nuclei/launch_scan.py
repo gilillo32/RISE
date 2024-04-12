@@ -1,8 +1,13 @@
+import argparse
 import pymongo
 import subprocess
 from dotenv import load_dotenv
 import os
 
+# Parse command line arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("-y", action="store_true", help="Skip confirmation")
+args = parser.parse_args()
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -19,13 +24,26 @@ except Exception as e:
     print(e)
     exit()
 
-companies = collection.find({}, {"web": 1, "_id": 0})
+companies_urls = collection.distinct("web")
 
+num_companies = 0
 with open("./shared-volume/targets.txt", "w") as file:
-    for company in companies:
-        file.write(company["web"] + "\n")
+    for company in companies_urls:
+        file.write(company + "\n")
+        num_companies += 1
+
+print(f"Added {num_companies} companies to targets.txt")
+
+# Ask if the user wants to launch the scan
+if not args.y:
+    print(f"{num_companies} targets are going to be scanned. Do you want continue? (y/n): ")
+    answer = input().lower()
+    if answer != "y":
+        print("Scan canceled")
+        exit()
 
 command = "docker run -v ./shared-volume:/go/src/app:rw projectdiscovery/nuclei \
 -l /go/src/app/targets.txt -je /go/src/app/result.json -config /go/src/app/rise-config.yml"
+
 
 subprocess.run(command, shell=True)
