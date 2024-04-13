@@ -42,8 +42,10 @@ if not args.y:
         print("Scan canceled")
         exit()
 
-command = "docker run -v ./shared-volume:/go/src/app:rw projectdiscovery/nuclei \
--l /go/src/app/targets.txt -je /go/src/app/result.json -config /go/src/app/rise-config.yml"
+current_date = datetime.now().strftime("%Y-%m-%d")
+file_name = f"scan_result_{current_date}.json"
+command = f"docker run -v ./shared-volume:/go/src/app:rw projectdiscovery/nuclei \
+-l /go/src/app/targets.txt -je /go/src/app/{file_name} -config /go/src/app/rise-config.yml"
 
 
 subprocess.run(command, shell=True)
