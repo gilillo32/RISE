@@ -522,7 +522,6 @@ $(function () {
             dataSrc: 'data'
         },
         columns: [
-            { data: 'NIF', defaultContent: '' },
             { data: 'name', defaultContent: '' },
             { data: 'province', defaultContent: '' },
             {
@@ -534,6 +533,17 @@ $(function () {
 
             },
             { data: 'lastScanDate', defaultContent: '' },
+            {
+                data: 'detectedTech',
+                render: function (data) {
+                    if (data != null && Array.isArray(data)) {
+                        return data.join(', ');
+                    } else {
+                        return data;
+                    }
+                },
+                defaultContent: ''
+            },
             {
                 data: 'vulnerabilities',
                 render: function (data) {

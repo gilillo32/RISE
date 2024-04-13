@@ -21,6 +21,9 @@ const companySchema = new mongoose.Schema({
     },
     vulnerabilities: {
         type: [String],
+    },
+    detectedTech: {
+        type: [String],
     }
 })
 
