@@ -30,7 +30,7 @@ Web platform for the diagnosis and prevention of cybersecurity risks (RISE) proj
 
 ### How to launch an analysis
 Customize Nuclei configuration file `rise-config.yaml` and execute the `launch_analysis.py` script with
-the `-y` flag to run the analysis without confirmation:
+the `-y` flag to run the analysis without confirmation. This step may take a few days to complete.
 ```bash
 python launch_analysis.py -y
 ```
