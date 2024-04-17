@@ -26,7 +26,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Database
-mongoose.connect(process.env.DATABASE_URL);
+mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`, {
+   user: process.env.MONGO_USER,
+    pass: process.env.MONGO_PASS,
+})
 
 mongoose.connection
    .on("open", () => console.log("Connected to database"))
