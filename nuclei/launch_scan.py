@@ -10,7 +10,8 @@ parser.add_argument("-y", action="store_true", help="Skip confirmation")
 args = parser.parse_args()
 
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = f'mongodb://{os.getenv("DATABASE_USER")}:\{os.getenv("DATABASE_PASSWORD")}@\
+{os.getenv("DATABASE_HOST")}:{os.getenv("DATABASE_PORT")}
 DATABASE_NAME = os.getenv("DATABASE_NAME")
 
 try:
