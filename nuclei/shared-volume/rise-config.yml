@@ -21,14 +21,14 @@ verbose: false
 scan-strategy: template-spray
 
 # This flag controls the global rate limit of http requests in nuclei and its default value is 150 requests per second.
-rate-limit: 50
+# rate-limit: 50
 
 # This flag controls concurrency/parallelism of targets in Nuclei and its default value is 25.
 #
 # IN Host-Spray mode/strategy, this flag controls maximum number of targets to run in parallel at a time
 #
 # IN Template-Spray/Default mode/strategy, this flag controls maximum number of targets to run in parallel for each template
-bulk-size: 50
+# bulk-size: 50
 
 # Number of templates to run in parallel at a time (IN Template-Spray/Default mode/strategy)
-concurrency: 20
+# concurrency: 20
