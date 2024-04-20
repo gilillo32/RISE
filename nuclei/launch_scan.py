@@ -10,9 +10,13 @@ parser.add_argument("-y", action="store_true", help="Skip confirmation")
 args = parser.parse_args()
 
 load_dotenv()
-DATABASE_URL = f'mongodb://{os.getenv("DATABASE_USER")}:\{os.getenv("DATABASE_PASSWORD")}@\
-{os.getenv("DATABASE_HOST")}:{os.getenv("DATABASE_PORT")}
-DATABASE_NAME = os.getenv("DATABASE_NAME")
+DATABASE_URL = (
+           f'mongodb://{os.getenv("MONGO_USER")}:'
+           f'{os.getenv("MONGO_PASS")}@'
+           f'{os.getenv("DB_HOST")}:'
+           f'{os.getenv("DB_PORT")}'
+           )
+DATABASE_NAME = os.getenv("DB_NAME")
 
 try:
     client = pymongo.MongoClient(DATABASE_URL)
