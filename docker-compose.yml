@@ -1,6 +1,6 @@
 services:
     db:
-        image: mongo:latest
+        image: mongo
         container_name: MongoDB
         ports:
             - "27017:27017"
@@ -15,6 +15,22 @@ services:
             - MONGO_PASS=${MONGO_PASS}
             - DB_NAME=${DB_NAME}
         restart: always
+
+    pia-vpn:
+        container_name: pia
+        image: itsdaspecialk/pia-openvpn
+        restart: always
+        cap_add:
+            - net_admin
+        dns:
+            - 209.222.18.222
+            - 209.222.18.218
+        ports:
+            - 9091:9091
+        environment:
+            REGION: "ES Madrid"
+            USERNAME: ${PIA_USERNAME}
+            PASSWORD: ${PIA_PASSWORD}
 
 
 volumes:

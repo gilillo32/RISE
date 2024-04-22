@@ -51,7 +51,7 @@ if not args.y:
 current_date = datetime.now().strftime("%Y-%m-%d")
 file_name = f"scan_result_{current_date}.json"
 command = f"docker run -v ./shared-volume:/go/src/app:rw projectdiscovery/nuclei \
--l /go/src/app/targets.txt -je /go/src/app/{file_name} -config /go/src/app/rise-config.yml"
+-l /go/src/app/targets.txt -je /go/src/app/{file_name} --rm --net=container:pia -config /go/src/app/rise-config.yml"
 
 
 subprocess.run(command, shell=True)
