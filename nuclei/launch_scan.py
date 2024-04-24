@@ -49,7 +49,7 @@ if not args.y:
         exit()
 
 current_date = datetime.now().strftime("%Y-%m-%d")
-file_name = f"scan_result_{current_date}.json"
+file_name = f"scan-result-{current_date}.json"
 command = f"docker run -v ./shared-volume:/go/src/app:rw --rm --net=container:vpn projectdiscovery/nuclei \
 -l /go/src/app/targets.txt -je /go/src/app/{file_name} -config /go/src/app/rise-config.yml"
 
