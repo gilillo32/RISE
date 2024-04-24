@@ -21,8 +21,8 @@ DATABASE_NAME = os.getenv("DB_NAME")
 
 try:
     client = pymongo.MongoClient(DATABASE_URL)
-    db = client[DATABASE_NAME]  # Reemplaza "mydatabase" con el nombre de tu base de datos
-    collection = db["companies"]  # Reemplaza "companies" con el nombre de tu colección
+    db = client[DATABASE_NAME]
+    collection = db["companies"]
     print("Connected to database")
 
 except Exception as e:
@@ -50,8 +50,8 @@ if not args.y:
 
 current_date = datetime.now().strftime("%Y-%m-%d")
 file_name = f"scan_result_{current_date}.json"
-command = f"docker run -v ./shared-volume:/go/src/app:rw projectdiscovery/nuclei \
--l /go/src/app/targets.txt -je /go/src/app/{file_name} --rm --net=container:pia -config /go/src/app/rise-config.yml"
+command = f"docker run -v ./shared-volume:/go/src/app:rw --rm --net=container:vpn projectdiscovery/nuclei \
+-l /go/src/app/targets.txt -je /go/src/app/{file_name} -config /go/src/app/rise-config.yml"
 
 
 subprocess.run(command, shell=True)
