@@ -33,7 +33,7 @@ services:
         #  - /dev/net/tun:/dev/net/tun
         environment:
             # The following env vars are required:
-            - LOC=swiss
+            - LOC=spain
             - USER=${PIA_USERNAME}
             - PASS=${PIA_PASSWORD}
             # The rest are optional:
