@@ -28,7 +28,6 @@ try:
 
 except Exception as e:
     print("Error connecting to database")
-    # Comment for testing commit namess
     print(e)
     exit()
 
