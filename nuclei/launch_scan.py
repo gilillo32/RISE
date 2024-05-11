@@ -8,6 +8,7 @@ import os
 # Parse command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-y", action="store_true", help="Skip confirmation")
+parser.add_argument("-n", type=int, help="Number of companies to scan")
 args = parser.parse_args()
 
 load_dotenv()
@@ -30,7 +31,15 @@ except Exception as e:
     print(e)
     exit()
 
-companies_urls = collection.distinct("web")
+if args.n:
+    pipeline = [
+        {"$group": {"_id": "$web", "doc": {"$first": "$$ROOT"}}},
+        {"$sample": {"size": args.n}},
+        {"$replaceRoot": {"newRoot": "$doc"}}
+    ]
+    companies_urls = [doc['web'] for doc in collection.aggregate(pipeline)]
+else:
+    companies_urls = collection.distinct("web")
 
 num_companies = 0
 with open("./shared-volume/targets.txt", "w") as file:
