@@ -28,6 +28,7 @@ try:
 
 except Exception as e:
     print("Error connecting to database")
+
     print(e)
     exit()
 
