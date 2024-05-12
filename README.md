@@ -1,5 +1,5 @@
 # RISE
-Web platform for the diagnosis and prevention of cybersecurity risks (RISE) project.
+Web platform for the diagnosis and prevention of cybersecurity risks (RISE, diagnóstico y prevención de RIesgos de ciberSEguridad) project.
 
 ## Setup
 ### Prerequisites
@@ -29,9 +29,14 @@ Web platform for the diagnosis and prevention of cybersecurity risks (RISE) proj
 5. Access the web server and import data from `dataset` folder.
 
 ### How to launch an analysis
-Customize Nuclei configuration file `rise-config.yaml` and execute the `launch_analysis.py` script with
-the `-y` flag to run the analysis without confirmation. This step may take a few days to complete.
+Customize Nuclei configuration file `rise-config.yaml` and execute the `launch_analysis.py` script.  
+Execute `python launch_analysis.py -h` for more information:
 ```bash
-python launch_analysis.py -y
+usage: launch_scan.py [-h] [-y] [-n N]
+
+options:
+  -h, --help  show this help message and exit
+  -y          Skip confirmation
+  -n N        Number of companies to scan
 ```
 ## About
