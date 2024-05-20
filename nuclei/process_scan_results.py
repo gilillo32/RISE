@@ -35,4 +35,8 @@ with open(filename, "r") as file:
 
 for item in scan_result:
     if item["info"]["severity"] == "info":
-        collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"detectedTech": item["info"]['name']}}, upsert=True)
+        name = item["info"]["name"]
+        matcher_name = item.get("matcher-name")
+        if matcher_name is not None:
+            name += f" ({matcher_name})"
+        collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"detectedTech": name}}, upsert=True)
