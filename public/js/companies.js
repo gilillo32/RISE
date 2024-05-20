@@ -508,7 +508,7 @@ $(function () {
         scrollX: true,
         paging: true,
         searching: true,
-        lengthMenu: [10, 25, 50, 75, 100],
+        lengthMenu: [10, 25, 50, 75, 75, 100],
         processing: true,
         serverSide: true,
         ajax: {
@@ -534,17 +534,6 @@ $(function () {
             },
             { data: 'lastScanDate', defaultContent: '' },
             {
-                data: 'detectedTech',
-                render: function (data) {
-                    if (data != null && Array.isArray(data)) {
-                        return data.join(', ');
-                    } else {
-                        return data;
-                    }
-                },
-                defaultContent: ''
-            },
-            {
                 data: 'vulnerabilities',
                 render: function (data) {
                     if (data != null && Array.isArray(data)) {
@@ -556,7 +545,20 @@ $(function () {
                 defaultContent: ''
             },
             {
+                data: 'detectedTech',
+                orderable: true,
+                render: function (data) {
+                    if (data != null && Array.isArray(data)) {
+                        return data.join(', ');
+                    } else {
+                        return data;
+                    }
+                },
+                defaultContent: ''
+            },
+            {
                 data: null,
+                orderable: false,
                 render: function () {
                     return '<button type="button" class="btn btn-primary btn-floating btn-sm" data-mdb-toggle="modal" data-mdb-target="#companyModal" data-action="edit">\
                                 <i class="fa-solid fa-pen"></i>\
@@ -654,4 +656,5 @@ $(function () {
 
     // Reset import companies modal styles when closing
     $("#importCompanyModal").on("hidden.bs.modal", resetImportCompanyModalStyles)
+
 });

@@ -1,6 +1,6 @@
 /* MongoDB models */
 const Company = require("../models/company");
-const columnNames = ["NIF", "name", "province", "website", "lastScanDate", "vulnerabilties", "detectedTech"];
+const columnNames = ["name", "province", "web", "lastScanDate", "vulnerabilties", "detectedTech", "actions"];
 
 const webPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
 
@@ -157,6 +157,7 @@ const companiesView = async (_, res) => {
     res.render('companies', { activeLink: 'companies' });
 }
 
+
 /* Send all information abount companies that match filter */
 const getCompanies = async (req, res) => {
     const searchFilter = req.query.filter || '';
@@ -171,6 +172,7 @@ const getCompanies = async (req, res) => {
                 { province: { $regex: searchFilter, $options: 'i' } },
                 { web: { $regex: searchFilter, $options: 'i' } },
                 { vulnerabilities: { $regex: searchFilter, $options: 'i' } },
+                { detectedTech: { $regex: searchFilter, $options: 'i' } },
             ];
         }
 
