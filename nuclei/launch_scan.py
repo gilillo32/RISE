@@ -42,7 +42,11 @@ else:
     companies_urls = collection.distinct("web")
 
 num_companies = 0
-with open("./shared-volume/targets.txt", "w") as file:
+
+# Get current directory
+current_dir = os.path.dirname(os.path.realpath(__file__))
+targets_file_path = os.path.join(current_dir, "shared-volume/targets.txt")
+with open(targets_file_path, "w") as file:
     for company in companies_urls:
         file.write(company + "\n")
         num_companies += 1
@@ -59,8 +63,9 @@ if not args.y:
 
 current_date = datetime.now().strftime("%Y-%m-%d")
 file_name = f"scan-result-{current_date}.json"
-command = f"docker run -v ./shared-volume:/go/src/app:rw --rm --net=container:vpn projectdiscovery/nuclei \
--l /go/src/app/targets.txt -je /go/src/app/{file_name} -config /go/src/app/rise-config.yml"
+shared_volume_path = os.path.join(current_dir, "shared-volume")
+command = f"docker run -v {shared_volume_path}:/go/src/app:rw --rm --net=container:vpn projectdiscovery/nuclei:latest \
+-l /go/src/app/targets.txt -je /go/src/app/results/{file_name} -config /go/src/app/rise-config.yml"
 
 
 subprocess.run(command, shell=True)

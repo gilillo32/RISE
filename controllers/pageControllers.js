@@ -207,6 +207,7 @@ const getCompaniesPage = async (req, res) => {
                 { province: { $regex: searchFilter, $options: 'i' } },
                 { web: { $regex: searchFilter, $options: 'i' } },
                 { vulnerabilities: { $regex: searchFilter, $options: 'i' } },
+                { detectedTech: { $regex: searchFilter, $options: 'i' } },
             ];
         }
 
