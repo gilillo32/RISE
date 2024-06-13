@@ -58,14 +58,15 @@ if not args.y:
     print(f"{num_companies} targets are going to be scanned. Do you want continue? (y/n): ")
     answer = input().lower()
     if answer != "y":
-        print("Scan canceled")
+        print("Scana canceled")
         exit()
 
 current_date = datetime.now().strftime("%Y-%m-%d")
 file_name = f"scan-result-{current_date}.json"
 shared_volume_path = os.path.join(current_dir, "shared-volume")
-command = f"docker run -v {shared_volume_path}:/go/src/app:rw --rm --net=container:vpn projectdiscovery/nuclei:latest \
--l /go/src/app/targets.txt -je /go/src/app/results/{file_name} -config /go/src/app/rise-config.yml"
+command = f"docker run -v {shared_volume_path}:/go/src/app:rw \
+--rm --net=container:vpn projectdiscovery/nuclei:latest \
+-l /go/src/app/targets.txt -j -silent -config /go/src/app/rise-config.yml > {shared_volume_path}/results/{file_name}"
 
 
 subprocess.run(command, shell=True)
