@@ -66,7 +66,7 @@ file_name = f"scan-result-{current_date}.json"
 shared_volume_path = os.path.join(current_dir, "shared-volume")
 command = f"docker run -v {shared_volume_path}:/go/src/app:rw \
 --rm --net=container:vpn projectdiscovery/nuclei:latest \
--l /go/src/app/targets.txt -j -svd -config /go/src/app/rise-config.yml > {shared_volume_path}/results/{file_name}"
+-l /go/src/app/targets.txt -j -config /go/src/app/rise-config.yml > {shared_volume_path}/results/{file_name}"
 
 
 subprocess.run(command, shell=True)
