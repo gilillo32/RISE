@@ -116,6 +116,9 @@ dist
 # DynamoDB Local files
 .dynamodb/
 
+# Nuclei data
+./nuclei/shared-volume/targets.txt
+
 # TernJS port file
 .tern-port
 
