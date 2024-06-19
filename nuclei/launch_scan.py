@@ -68,5 +68,12 @@ command = f"docker run -v {shared_volume_path}:/go/src/app:rw \
 --rm --net=container:vpn projectdiscovery/nuclei:latest \
 -l /go/src/app/targets.txt -j -config /go/src/app/rise-config.yml > {shared_volume_path}/results/{file_name}"
 
+try:
+    subprocess.run(command, shell=True)
+except Exception as e:
+    print("Error launching scan")
+    print(e)
+    exit()
+finally:
+    print("Executing finally clause . . .")
 
-subprocess.run(command, shell=True)
