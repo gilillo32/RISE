@@ -76,4 +76,7 @@ except Exception as e:
     exit()
 finally:
     print("Executing finally clause . . .")
+    # Print system resources
+    subprocess.run("free -h", shell=True)
+
 
