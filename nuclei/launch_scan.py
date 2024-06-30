@@ -67,16 +67,9 @@ if not args.skip_confirmation:
 current_date = datetime.now().strftime("%Y-%m-%d")
 file_name = f"scan-result-{current_date}.json"
 shared_volume_path = os.path.join(current_dir, "shared-volume")
-if not args.docker:
-    # Run analysis locally
-    pass
-    # TODO: Implement local analysis
-else:
-    # Default option
-    # Run analysis inside docker
-    command = f"docker run -v {shared_volume_path}:/go/src/app:rw \
-    --rm --net=container:vpn projectdiscovery/nuclei:latest \
-    -l /go/src/app/targets.txt -j -config /go/src/app/rise-config.yml > {shared_volume_path}/results/{file_name}"
+command = f"docker run -v {shared_volume_path}:/go/src/app:rw \
+--rm --net=container:vpn projectdiscovery/nuclei:latest \
+-l /go/src/app/targets.txt -j -config /go/src/app/rise-config.yml > {shared_volume_path}/results/{file_name}"
 
 try:
     print("Launching scan . . .")
