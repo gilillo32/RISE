@@ -9,9 +9,6 @@ import os
 parser = argparse.ArgumentParser()
 parser.add_argument("-y", "--skip-confirmation", action="store_true", help="Skip confirmation")
 parser.add_argument("-n", "--number-companies", type=int, help="Number of companies to scan")
-group = parser.add_mutually_exclusive_group()
-group.add_argument("-d", "--docker", action="store_true", help="Run analysis inside docker")
-group.add_argument("-l", "--local", action="store_true", help="Run analysis with the local tool")
 args = parser.parse_args()
 
 load_dotenv()
