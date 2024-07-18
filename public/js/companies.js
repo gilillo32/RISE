@@ -527,7 +527,7 @@ $(function () {
             {
                 data: 'web',
                 render: function (data) {
-                    return `<a href="//${data}">${data}</a>`;
+                    return `<a href="//${data}" target="_blank">${data}</a>`;
                 },
                 defaultContent: ''
 

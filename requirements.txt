@@ -2,4 +2,10 @@ pymongo
 python-dotenv
 pandas
 xlrd
+
+# Progress bar
 tqdm
+
+# Telegram bot options
+python-telegram-bot
+asyncio
