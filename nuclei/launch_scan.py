@@ -67,7 +67,6 @@ shared_volume_path = os.path.join(current_dir, "shared-volume")
 command = f"docker run -v {shared_volume_path}:/go/src/app:rw \
 --rm --net=container:vpn projectdiscovery/nuclei:latest \
 -l /go/src/app/targets.txt -j -config /go/src/app/rise-config.yml > {shared_volume_path}/results/{file_name}"
-
 try:
     print("Launching scan . . .")
     subprocess.run(command, shell=True)
