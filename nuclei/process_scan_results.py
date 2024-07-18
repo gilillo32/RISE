@@ -1,6 +1,7 @@
 import pymongo
 import argparse
 import json
+from tqdm import tqdm
 from dotenv import load_dotenv
 import os
 
@@ -33,10 +34,18 @@ filename = args.filename
 with open(filename, "r") as file:
     scan_result = json.load(file)
 
-for item in scan_result:
+for item in tqdm(scan_result, desc="Processing scan results", unit="item", ascii=" ▖▘▝▗▚▞█"):
     if item["info"]["severity"] == "info":
         name = item["info"]["name"]
         matcher_name = item.get("matcher-name")
         if matcher_name is not None:
             name += f" ({matcher_name})"
-        collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"detectedTech": name}}, upsert=True)
+        collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"detectedTech": name}},
+         upsert=True)
+    elif item["info"]["severity"] in ["critical", "high", "medium", "low", "unknown"]:
+        name = item["info"]["name"]
+        matcher_name = item.get("matcher-name")
+        if matcher_name is not None:
+            name += f" ({matcher_name})"
+        collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"vulnerabilities": name}},
+         upsert=True)
