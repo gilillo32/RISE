@@ -58,7 +58,7 @@ if not args.skip_confirmation:
     print(f"{num_companies} targets are going to be scanned. Do you want continue? (y/n): ")
     answer = input().lower()
     if answer != "y":
-        print("Scan canceled")
+        print("Scan canceled :/")
         exit()
 
 current_date = datetime.now().strftime("%Y-%m-%d")
@@ -70,8 +70,12 @@ command = f"docker run -v {shared_volume_path}:/go/src/app:rw \
 try:
     print("Launching scan . . .")
     subprocess.run(command, shell=True)
+    new_file_name = f"scan-result-{current_date}-n{num_companies}-completed.json"
+    os.rename(os.path.join(shared_volume_path, "results", file_name), os.path.join(shared_volume_path,
+        "results", new_file_name))
+    print("Scan completed :)")
 except Exception as e:
-    print("Error launching scan")
+    print("Error launching scan :(")
     print(e)
     exit()
 
