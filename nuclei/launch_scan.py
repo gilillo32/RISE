@@ -21,8 +21,9 @@ if not args.no_telegram:
         from telegram_bot_controller import TelegramBotController
         bot = TelegramBotController()
         loop = asyncio.get_event_loop()
-    except:
+    except Exception as e:
         print("Error setting telegram bot up")
+        print(e)
         exit()
 
 load_dotenv()
