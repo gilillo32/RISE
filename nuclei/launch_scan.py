@@ -76,12 +76,18 @@ if not args.skip_confirmation:
         print("Scan canceled :/")
         exit()
 
+# Remove stderr.txt if exists
+stderr_path = os.path.join(current_dir, "shared-volume/stderr.txt")
+if os.path.exists(stderr_path):
+    os.remove(stderr_path)
+
 current_date = datetime.now().strftime("%Y-%m-%d")
 file_name = f"scan-result-{current_date}.json"
 shared_volume_path = os.path.join(current_dir, "shared-volume")
-command = f"docker run -v {shared_volume_path}:/go/src/app:rw \
+command = (f"docker run -v {shared_volume_path}:/go/src/app:rw \
 --rm --net=container:vpn projectdiscovery/nuclei:latest \
--l /go/src/app/targets.txt -j -config /go/src/app/rise-config.yml > {shared_volume_path}/results/{file_name}"
+-l /go/src/app/targets.txt -j -config /go/src/app/rise-config.yml > {shared_volume_path}/results/{file_name} | "
+           f"tee -a stderr.txt")
 everything_ok = False
 try:
     print("Launching scan . . .")
