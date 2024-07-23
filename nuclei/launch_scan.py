@@ -74,13 +74,14 @@ targets_file_path = os.path.join(current_dir, "shared-volume/targets.txt")
 if args.split:
     for i in range(0, len(companies_urls), args.split):
         num_iterations = len(companies_urls) // args.split
+        current_iteration = i // args.split + 1
         with open(targets_file_path, "w") as file:
             num_companies = 0
             for company in companies_urls[i:i + args.split]:
                 file.write(company + "\n")
                 num_companies += 1
         current_date = datetime.now().strftime("%Y-%m-%d")
-        file_name = f"scan-result-{current_date}-iteration-{i}.json"
+        file_name = f"scan-result-{current_date}-iteration-{current_iteration}.json"
         shared_volume_path = os.path.join(current_dir, "shared-volume")
         command = (f"bash -c \"docker run -v {shared_volume_path}:/go/src/app:rw \
         --rm --net=container:vpn projectdiscovery/nuclei:latest \
@@ -88,13 +89,13 @@ if args.split:
                    f"{shared_volume_path}/results/{file_name} 2> >(tee -a {shared_volume_path}/stderr.txt >&2)\"")
         everything_ok = False
         try:
-            print(f"Launching scan {i}/{num_iterations} . . .")
+            print(f"Launching scan {current_iteration}/{num_iterations} . . .")
             if not args.no_telegram:
                 loop.run_until_complete(bot.send_message(f"Launching scan "
-                                                         f"{i}/{num_iterations} with "
+                                                         f"{current_iteration}/{num_iterations} with "
                                                          f"{num_companies} companies"))
             subprocess.run(command, shell=True)
-            new_file_name = f"scan-result-{current_date}-iteration-{i}-n{num_companies}-completed.json"
+            new_file_name = f"scan-result-{current_date}-iteration-{current_iteration}-n{num_companies}-completed.json"
             os.rename(os.path.join(shared_volume_path, "results", file_name),
                       os.path.join(shared_volume_path, "results",
                                    new_file_name))
@@ -108,12 +109,12 @@ if args.split:
                 print("Scan completed :)")
                 if not args.no_telegram:
                     loop.run_until_complete(
-                        bot.send_message(f"Scan segment {i}/{num_iterations} completed with "
+                        bot.send_message(f"Scan segment {current_iteration}/{num_iterations} completed with "
                                          f"{num_companies} companies :)"))
             else:
                 print("Scan interrupted :/")
                 if not args.no_telegram:
-                    loop.run_until_complete(bot.send_message(f"Scan segment {i} interrupted :/"))
+                    loop.run_until_complete(bot.send_message(f"Scan segment {current_iteration} interrupted :/"))
     else:
         with open(targets_file_path, "w") as file:
             for company in companies_urls:
