@@ -109,12 +109,12 @@ if args.split:
                 print("Scan completed :)")
                 if not args.no_telegram:
                     loop.run_until_complete(
-                        bot.send_message(f"Scan segment {current_iteration}/{num_iterations} completed with "
+                        bot.send_message(f"✅Scan segment {current_iteration}/{num_iterations} completed with "
                                          f"{num_companies} companies :)"))
             else:
                 print("Scan interrupted :/")
                 if not args.no_telegram:
-                    loop.run_until_complete(bot.send_message(f"Scan segment {current_iteration} interrupted :/"))
+                    loop.run_until_complete(bot.send_message(f"🔴Scan segment {current_iteration} interrupted :/"))
     else:
         with open(targets_file_path, "w") as file:
             for company in companies_urls:
@@ -153,8 +153,8 @@ if args.split:
             if everything_ok:
                 print("Scan completed :)")
                 if not args.no_telegram:
-                    loop.run_until_complete(bot.send_message(f"Scan completed with {num_companies} companies :)"))
+                    loop.run_until_complete(bot.send_message(f"✅Scan completed with {num_companies} companies :)"))
             else:
                 print("Scan interrupted :/")
                 if not args.no_telegram:
-                    loop.run_until_complete(bot.send_message(f"Scan interrupted :/"))
+                    loop.run_until_complete(bot.send_message(f"🔴Scan interrupted :/"))
