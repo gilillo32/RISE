@@ -157,6 +157,10 @@ const companiesView = async (_, res) => {
     res.render('companies', { activeLink: 'companies' });
 }
 
+const loginView = (_, res) => {
+    res.render('login', { activeLink: 'overview' });
+}
+
 
 /* Send all information abount companies that match filter */
 const getCompanies = async (req, res) => {
@@ -352,6 +356,7 @@ const deleteCompany = async (req, res) => {
 module.exports = {
     overviewView,
     companiesView,
+    loginView,
 
     // API
     getCompanies,

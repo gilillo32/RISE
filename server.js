@@ -5,6 +5,7 @@ const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
 const mongoose = require('mongoose');
 const router = require('./routes/router');
+const session = require('express-session');
 const bodyParser = require('body-parser');
 const liveReload = require("livereload");
 const connectLiveReload = require("connect-livereload");
@@ -24,6 +25,12 @@ app.use(connectLiveReload());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(session({
+   secret: process.env.EXPRESS_SESSION_SECRET,
+   resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Change to true if HTTPS is enabled
+}))
 
 // Database
 mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`, {
@@ -52,6 +59,12 @@ app.use("/js", express.static(path.join(__dirname, "node_modules/mdb-ui-kit/js")
 app.use("/js", express.static(path.join(__dirname, "node_modules/datatables.net/js")));
 app.use("/css", express.static(path.join(__dirname, "node_modules/datatables.net-bs5/css")));
 app.use("/js", express.static(path.join(__dirname, "node_modules/datatables.net-bs5/js")));
+
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/login');
+});
+
 
 const PORT = process.env.APP_PORT;
 app.listen(PORT, () => {

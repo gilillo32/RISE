@@ -6,6 +6,7 @@ const upload = multer({ storage: storage });
 const {
     overviewView,
     companiesView,
+    loginView,
     getCompanies,
     getCompaniesPage,
     findByNIF,
@@ -17,10 +18,30 @@ const {
 
 const router = express.Router();
 
+function isAuthenticated(req, res, next){
+    if(req.session.user){
+        return next();
+    }
+    else{
+        res.redirect('/login');
+    }
+}
 /* Website routes */
-router.get('/', overviewView);
-router.get('/overview', overviewView);
-router.get('/companies', companiesView);
+router.get('/login', loginView);
+router.get('/', isAuthenticated, overviewView);
+router.get('/overview', isAuthenticated, overviewView);
+router.get('/companies', isAuthenticated, companiesView);
+
+router.post('/login', (req, res) => {
+    const{username, password} = req.body;
+    if(username === process.env.PLATFORM_USERNAME && password === process.env.PLATFORM_PASSWORD){
+        req.session.user = username;
+        overviewView(req, res);
+    }
+    else{
+        res.render('login');
+    }
+})
 
 // API routes
 router.get('/api/getCompanies', getCompanies);
