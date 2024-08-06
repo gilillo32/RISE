@@ -60,12 +60,6 @@ app.use("/js", express.static(path.join(__dirname, "node_modules/datatables.net/
 app.use("/css", express.static(path.join(__dirname, "node_modules/datatables.net-bs5/css")));
 app.use("/js", express.static(path.join(__dirname, "node_modules/datatables.net-bs5/js")));
 
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/login');
-});
-
-
 const PORT = process.env.APP_PORT;
 app.listen(PORT, () => {
    console.log('App listening on port ' + PORT);

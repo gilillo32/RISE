@@ -158,7 +158,7 @@ const companiesView = async (_, res) => {
 }
 
 const loginView = (_, res) => {
-    res.render('login', { activeLink: 'overview' });
+    res.render('login', { activeLink: 'overview' , hideSidebar: true});
 }
 
 

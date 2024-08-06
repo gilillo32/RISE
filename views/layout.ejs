@@ -17,7 +17,11 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
-    <%- include('partials/sidebar.ejs')%>
+    <!-- Check if hideSidebar is defined -->
+    <% if (typeof hideSidebar === 'undefined' || !hideSidebar) { %>
+        <%- include('partials/sidebar.ejs') %>
+    <% } %>
+
     <div class="content">
         <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 5"></div>
         <%- body %>
