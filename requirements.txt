@@ -6,6 +6,8 @@ xlrd
 # Progress bar
 tqdm
 
+ijson
+
 # Telegram bot options
 python-telegram-bot
 asyncio
