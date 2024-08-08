@@ -1,6 +1,6 @@
 /* MongoDB models */
 const Company = require("../models/company");
-const columnNames = ["name", "province", "web", "lastScanDate", "vulnerabilties", "detectedTech", "actions"];
+const columnNames = ["name", "province", "web", "lastScanDate", "vulnerabilities", "detectedTech", "actions"];
 
 const webPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
 
