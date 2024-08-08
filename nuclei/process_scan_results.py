@@ -49,8 +49,10 @@ filename = args.filename
 
 try:
     # Load the scan result
+    print("Opening scan result file")
     with open(filename, "r") as file:
-        for item in ijson.items(file, "item"):
+        print("Starting loop")
+        for item in tqdm(ijson.items(file, "item"), desc="Processing items", unit="item", ascii=" ▖▘▝▗▚▞█"):
             process_item(item)
 except Exception as e:
     print("Error loading scan result")
