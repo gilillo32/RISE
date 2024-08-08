@@ -30,9 +30,16 @@ parser.add_argument("filename", help="Scan result filename")
 args = parser.parse_args()
 filename = args.filename
 
-# Load the scan result
-with open(filename, "r") as file:
-    scan_result = json.load(file)
+try:
+    # Load the scan result
+    with open(filename, "r") as file:
+        scan_result = json.load(file)
+except Exception as e:
+    print("Error loading scan result")
+    print(type(e))
+    print(str(e))
+
+    print(e)
 
 for item in tqdm(scan_result, desc="Processing scan results", unit="item", ascii=" ▖▘▝▗▚▞█"):
     if item["info"]["severity"] == "info":
@@ -49,3 +56,4 @@ for item in tqdm(scan_result, desc="Processing scan results", unit="item", ascii
             name += f" ({matcher_name})"
         collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"vulnerabilities": name}},
          upsert=True)
+print("Scan results processed")
