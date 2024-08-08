@@ -15,6 +15,22 @@ DATABASE_URL = (
            )
 DATABASE_NAME = os.getenv("DB_NAME")
 
+def process_item(item):
+   if item["info"]["severity"] == "info":
+           name = item["info"]["name"]
+           matcher_name = item.get("matcher-name")
+           if matcher_name is not None:
+               name += f" ({matcher_name})"
+           collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"detectedTech": name}},
+            upsert=True)
+   elif item["info"]["severity"] in ["critical", "high", "medium", "low", "unknown"]:
+       name = item["info"]["name"]
+       matcher_name = item.get("matcher-name")
+       if matcher_name is not None:
+           name += f" ({matcher_name})"
+       collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"vulnerabilities": name}},
+        upsert=True)
+
 try:
     # Connect to the database
     client = pymongo.MongoClient(DATABASE_URL)
@@ -43,18 +59,5 @@ except Exception as e:
 
     print(e)
 
-def process_item(item):
-   if item["info"]["severity"] == "info":
-           name = item["info"]["name"]
-           matcher_name = item.get("matcher-name")
-           if matcher_name is not None:
-               name += f" ({matcher_name})"
-           collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"detectedTech": name}},
-            upsert=True)
-   elif item["info"]["severity"] in ["critical", "high", "medium", "low", "unknown"]:
-       name = item["info"]["name"]
-       matcher_name = item.get("matcher-name")
-       if matcher_name is not None:
-           name += f" ({matcher_name})"
-       collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"vulnerabilities": name}},
-        upsert=True)
+print("Scan result processed")
+
