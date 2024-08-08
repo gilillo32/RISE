@@ -31,7 +31,7 @@ def process_item(item):
        if matcher_name is not None:
            name += f" ({matcher_name})"
        host = item["host"].split(":")[0]
-       collection.update_one({"web": {"$regex": '.*'+host'*'}}, {"$addToSet": {"vulnerabilities": name}},
+       collection.update_one({"web": {"$regex": '.*'+host+'*'}}, {"$addToSet": {"vulnerabilities": name}},
         upsert=True)
 
 try:
