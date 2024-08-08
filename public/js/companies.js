@@ -535,6 +535,7 @@ $(function () {
             { data: 'lastScanDate', defaultContent: '' },
             {
                 data: 'vulnerabilities',
+                orderable: true,
                 render: function (data) {
                     if (data != null && Array.isArray(data)) {
                         return data.join(', ');
