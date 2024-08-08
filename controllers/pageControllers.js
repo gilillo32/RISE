@@ -182,7 +182,7 @@ const getCompanies = async (req, res) => {
 
         /* Sorting */
         const sort = req.query.sort.map(item =>
-            [columnNames[item[0]], item[1] === 'asc' ? 1 : -1]
+            [columnNames[item.column], item.dir === 'asc' ? 1 : -1]
         );
 
         const data = await Company.find(filter).sort(sort).exec();
