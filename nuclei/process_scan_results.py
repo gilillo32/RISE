@@ -4,6 +4,7 @@ import json
 from tqdm import tqdm
 from dotenv import load_dotenv
 import os
+import ijson
 
 load_dotenv()
 DATABASE_URL = (
@@ -33,7 +34,8 @@ filename = args.filename
 try:
     # Load the scan result
     with open(filename, "r") as file:
-        scan_result = json.load(file)
+        for item in ijson.items(file, "item"):
+            process_item(item)
 except Exception as e:
     print("Error loading scan result")
     print(type(e))
@@ -41,19 +43,18 @@ except Exception as e:
 
     print(e)
 
-for item in tqdm(scan_result, desc="Processing scan results", unit="item", ascii=" ▖▘▝▗▚▞█"):
-    if item["info"]["severity"] == "info":
-        name = item["info"]["name"]
-        matcher_name = item.get("matcher-name")
-        if matcher_name is not None:
-            name += f" ({matcher_name})"
-        collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"detectedTech": name}},
-         upsert=True)
-    elif item["info"]["severity"] in ["critical", "high", "medium", "low", "unknown"]:
-        name = item["info"]["name"]
-        matcher_name = item.get("matcher-name")
-        if matcher_name is not None:
-            name += f" ({matcher_name})"
-        collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"vulnerabilities": name}},
-         upsert=True)
-print("Scan results processed")
+def process_item(item):
+   if item["info"]["severity"] == "info":
+           name = item["info"]["name"]
+           matcher_name = item.get("matcher-name")
+           if matcher_name is not None:
+               name += f" ({matcher_name})"
+           collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"detectedTech": name}},
+            upsert=True)
+   elif item["info"]["severity"] in ["critical", "high", "medium", "low", "unknown"]:
+       name = item["info"]["name"]
+       matcher_name = item.get("matcher-name")
+       if matcher_name is not None:
+           name += f" ({matcher_name})"
+       collection.update_one({"web": {"$regex": '.*'+item["host"]+'*'}}, {"$addToSet": {"vulnerabilities": name}},
+        upsert=True)
