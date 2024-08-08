@@ -23,16 +23,17 @@ def process_item(item):
                name += f" ({matcher_name})"
                # Remove port from url
                host = item["host"].split(":")[0]
-           collection.update_one({"web": {"$regex": '.*'+host+'*'}}, {"$addToSet": {"detectedTech": name}},
-            upsert=True)
+               collection.update_one({"web": {"$regex": '.*'+host+'*'}}, {"$addToSet": {"detectedTech": name}},
+                upsert=True)
    elif item["info"]["severity"] in ["critical", "high", "medium", "low", "unknown"]:
        name = item["info"]["name"]
        matcher_name = item.get("matcher-name")
        if matcher_name is not None:
            name += f" ({matcher_name})"
-       host = item["host"].split(":")[0]
-       collection.update_one({"web": {"$regex": '.*'+host+'*'}}, {"$addToSet": {"vulnerabilities": name}},
-        upsert=True)
+           # Remove port from url
+           host = item["host"].split(":")[0]
+           collection.update_one({"web": {"$regex": '.*'+host+'*'}}, {"$addToSet": {"vulnerabilities": name}},
+            upsert=True)
 
 try:
     # Connect to the database
