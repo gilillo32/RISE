@@ -83,10 +83,9 @@ if args.split:
         current_date = datetime.now().strftime("%Y-%m-%d")
         file_name = f"scan-result-{current_date}-iteration-{current_iteration}.json"
         shared_volume_path = os.path.join(current_dir, "shared-volume")
-        command = (f"bash -c \"docker run -v {shared_volume_path}:/go/src/app:rw \
+        command = f"docker run -v {shared_volume_path}:/go/src/app:rw \
         --rm --net=container:vpn projectdiscovery/nuclei:latest \
-        -l /go/src/app/targets.txt -j -nc -config /go/src/app/rise-config.yml > "
-                   f"{shared_volume_path}/results/{file_name} 2> >(tee -a {shared_volume_path}/stderr.txt >&2)\"")
+        -l /go/src/app/targets.txt -config /go/src/app/rise-config.yml > {shared_volume_path}/results/{file_name}"
         everything_ok = False
         try:
             print(f"Launching scan {current_iteration}/{num_iterations} . . .")
@@ -127,20 +126,14 @@ else:
     current_date = datetime.now().strftime("%Y-%m-%d")
     file_name = f"scan-result-{current_date}.json"
     shared_volume_path = os.path.join(current_dir, "shared-volume")
-
-    # Remove stderr.txt if exists
-    stderr_path = os.path.join(current_dir, f"{shared_volume_path}/stderr.txt")
-    if os.path.exists(stderr_path):
-        os.remove(stderr_path)
-    command = (f"bash -c \"docker run -v {shared_volume_path}:/go/src/app:rw \
+    command = f"docker run -v {shared_volume_path}:/go/src/app:rw \
     --rm --net=container:vpn projectdiscovery/nuclei:latest \
-    -l /go/src/app/targets.txt -j -nc -config /go/src/app/rise-config.yml > {shared_volume_path}/results/{file_name} \
-               2> >(tee -a {shared_volume_path}/stderr.txt >&2)\"")
+    -l /go/src/app/targets.txt -config /go/src/app/rise-config.yml > {shared_volume_path}/results/{file_name}"
     everything_ok = False
     try:
         print("Launching scan . . .")
         if not args.no_telegram:
-            loop.run_until_complete(bot.send_message(f"Launching scan with {num_companies} companies"))
+            loop.run_until_complete(bot.send_message(f"Launching scan with {num_companies} companies [NO SPLIT]"))
         subprocess.run(command, shell=True)
         new_file_name = f"scan-result-{current_date}-n{num_companies}-completed.json"
         os.rename(os.path.join(shared_volume_path, "results", file_name), os.path.join(shared_volume_path, "results",

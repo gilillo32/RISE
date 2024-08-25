@@ -17,6 +17,8 @@
 
 stats: true
 verbose: false
+no-color: true
+jsonl: true
 
 scan-strategy: template-spray
 
