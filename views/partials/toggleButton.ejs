@@ -1,0 +1,29 @@
+<!-- Toggle button -->
+<button id="toggleSidebar" class="btn btn-primary">
+    <i class="fas fa-bars"></i>
+</button>
+
+<script>
+    // Get the toggle button
+    const toggleSidebar = document.getElementById('toggleSidebar');
+
+
+    // Add click event listener to the toggle button
+    toggleSidebar.addEventListener('click', () => {
+        // Get the sidebar
+        const sidebar = document.getElementById('sidebar');
+        const content = document.querySelector('.content');
+
+        // Toggle the sidebar
+        sidebar.classList.toggle('sidebar-reduced');
+        // Adjust content width
+        if (sidebar.classList.contains('sidebar-reduced')) {
+            content.style.marginLeft = '60px';
+            content.style.width = 'calc(100% - 60px)';
+
+        } else {
+            content.style.marginLeft = '300px';
+            content.style.width = 'calc(100% - 300px)';
+        }
+    });
+</script>

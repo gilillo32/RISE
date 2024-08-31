@@ -1,8 +1,8 @@
-<nav class="sidebar bg-dark d-flex flex-column">
-    <h1><a href="../overview">RISE</a></h1>
+<nav class="sidebar bg-dark d-flex flex-column" id="sidebar">
+    <h1><a href="../overview"><span>RISE</span></a></h1>
     <ul>
-        <li class="<%= activeLink === 'overview' ? 'active' : ''%>"><a href="../overview"><i class="fas fa-chart-line"></i>Overview</a></li>
-        <li class="<%= activeLink === 'companies' ? 'active' : ''%>"><a href="../companies"><i class="fa-solid fa-building"></i>Companies</a></li>
+        <li class="<%= activeLink === 'overview' ? 'active' : ''%>"><a href="../overview"><i class="fas fa-chart-line"></i><span>Overview</span></a></li>
+        <li class="<%= activeLink === 'companies' ? 'active' : ''%>"><a href="../companies"><i class="fa-solid fa-building"></i><span>Companies</span></a></li>
     </ul>
     <!-- Logout button in the bottom -->
     <form action="/logout" method="POST" class="mt-auto mb-3 ms-3">

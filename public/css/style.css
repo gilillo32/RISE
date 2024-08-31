@@ -34,6 +34,7 @@ body {
     padding: 10px 30px;
     background-color: #2f89fc;
     color: #fff;
+    text-align: center;
 }
 
 .sidebar {
@@ -84,6 +85,39 @@ body {
     text-align: center;
 }
 
+/* Sidebar reduced */
+.sidebar-reduced {
+    width: 60px;
+}
+
+.sidebar-reduced h1 a {
+    display: none;
+}
+
+.sidebar-reduced h1 span{
+    display: none;
+}
+
+.sidebar-reduced ul {
+    margin-top: 30px;
+}
+
+.sidebar-reduced ul li a {
+    padding: 30px 10px;
+    text-align: center;
+}
+
+.sidebar-reduced ul li a i {
+    margin-right: 0;
+}
+
+.sidebar-reduced ul li a span {
+    display: none;
+}
+
+.sidebar-reduced form {
+    display: none;
+}
 
 /* End of dashboard sidebar */
 
@@ -91,6 +125,7 @@ body {
     margin-left: 300px;
     padding: 1.8rem;
     overflow: auto;
+    transition: margin-left 0.3s, width 0.3s;
 }
 
 .table {
@@ -114,6 +149,17 @@ table td {
     padding: 2rem;
     background-color: #fff;
     border-radius: 5px;
+}
+
+#toggleSidebar {
+    display: inline;
+    position: fixed;
+    z-index: 1000;
+    background-color: transparent;
+    font-weight: 700;
+    font-size: 17px;
+    box-shadow: none;
+    color: white;
 }
 
 /* Notifications */

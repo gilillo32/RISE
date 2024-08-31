@@ -18,8 +18,12 @@
 </head>
 <body>
     <!-- Check if hideSidebar is defined -->
-    <% if (typeof hideSidebar === 'undefined' || !hideSidebar) { %>
+    <% if (!hideSidebar) { %>
         <%- include('partials/sidebar.ejs') %>
+        <%- include('partials/toggleButton.ejs')%>
+        <script>
+            toggleSidebar.style.color = 'white';
+        </script>
     <% } %>
 
     <div class="content">
