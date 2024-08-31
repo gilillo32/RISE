@@ -1,6 +1,6 @@
 # RISE
-Web platform for the diagnosis and prevention of cybersecurity risks (RISE, diagnóstico y prevención de RIesgos de ciberSEguridad) project.
-
+Online service map of companies in the Basque Country for the detection, diagnosis, and early warning of vulnerabilities
+and cybersecurity risks, as part of the RISE project (diagnóstico y prevención de RIesgos de ciberSEguridad).
 ## Setup
 ### Prerequisites
 - [Docker](https://docs.docker.com/get-docker/)
