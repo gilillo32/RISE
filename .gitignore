@@ -1,3 +1,6 @@
+nuclei/shared-volume/targets.txt
+
+
 # Logs
 logs
 *.log
