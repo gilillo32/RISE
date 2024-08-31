@@ -575,6 +575,24 @@ $(function () {
         ]
     }).columns.adjust().draw();
 
+    $('#companiesTable tbody').on('click', 'tr', async function () {
+        const companyId = companiesTable.row(this).data()?.NIF;
+        if (companyId) {
+            try {
+                const response = await fetch(`/api/scaninfo/${companyId}`);
+                const result = await response.json();
+                const data = result.data;
+                document.getElementById('scanDetail').textContent = JSON.stringify(data,
+                    null, 2);
+                const companyDetailsModal = new bootstrap.Modal(document.getElementById(
+                    'companyDetailsModal'));
+                companyDetailsModal.show();
+            } catch (error) {
+                console.error('Error fetching company details:', error);
+            }
+        }
+    });
+
     // Request provinces data for provinces select
     $.getJSON('json/provinces.json', function (data) {
         var select = $('#provinceSelect');

@@ -1,5 +1,6 @@
 /* MongoDB models */
 const Company = require("../models/company");
+const {connection} = require("mongoose");
 const columnNames = ["name", "province", "web", "lastScanDate", "vulnerabilities", "detectedTech", "actions"];
 
 const webPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
@@ -150,15 +151,15 @@ const localFindByNIF = async (nif) => {
 }
 
 const overviewView = (_, res) => {
-    res.render('overview', { activeLink: 'overview' });
+    res.render('overview', { activeLink: 'overview', hideSidebar: false});
 }
 
 const companiesView = async (_, res) => {
-    res.render('companies', { activeLink: 'companies' });
+    res.render('companies', { activeLink: 'companies', hideSidebar: false});
 }
 
 const loginView = (_, res) => {
-    res.render('login', { activeLink: 'overview' , hideSidebar: true});
+    res.render('login', { activeLink: 'overview', hideSidebar: true});
 }
 
 
@@ -353,6 +354,30 @@ const deleteCompany = async (req, res) => {
     }
 }
 
+const getScanInfo = async (req, res) => {
+    const NIF = req.params.NIF;
+
+    try{
+        // Associate the NIF with the company
+        const company = await Company.findOne({ 'NIF': NIF });
+        if (!company) {
+            return res.status(404).json({ success: false, message: `Company with NIF ${NIF} not found` });
+        }
+        // Get the company web
+        const web = company.web;
+        // Connect to MongoDB to get scan_results collection
+        const db = connection.db;
+        const collection = db.collection('scan_results');
+        // Get multiple documents from the collection with the company web
+        const scanInfo = await collection.find({ 'web': web }).toArray();
+        return res.json({ success: true, data: scanInfo });
+    }
+    catch(error) {
+        console.error(error);
+        res.status(500).json({success: false, message: `Error while querying scan info for company with NIF ${NIF}`});
+    }
+}
+
 module.exports = {
     overviewView,
     companiesView,
@@ -366,4 +391,5 @@ module.exports = {
     updateCompany,
     deleteCompany,
     importCompanyFile,
+    getScanInfo
 }

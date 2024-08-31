@@ -13,7 +13,8 @@ const {
     insertCompany,
     importCompanyFile,
     updateCompany,
-    deleteCompany
+    deleteCompany,
+    getScanInfo
 } = require('../controllers/pageControllers');
 
 const router = express.Router();
@@ -39,7 +40,7 @@ router.post('/login', (req, res) => {
         overviewView(req, res);
     }
     else{
-        res.render('login');
+        res.redirect('/login');
     }
 })
 
@@ -52,6 +53,7 @@ router.post('/logout', (req, res) => {
 router.get('/api/getCompanies', getCompanies);
 router.get('/api/getCompaniesPage', getCompaniesPage);
 router.get('/api/findByNIF/:NIF', findByNIF);
+router.get('/api/scaninfo/:NIF', getScanInfo);
 
 router.post('/api/insertCompany', insertCompany);
 router.post('/api/importCompanyFile', upload.single("file"), importCompanyFile);
