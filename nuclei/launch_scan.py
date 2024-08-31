@@ -5,6 +5,9 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 
+from nuclei.db_manager import DbManager
+from nuclei.process_scan_results import companies_collection
+
 # Parse command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-y", "--skip-confirmation", action="store_true", help="Skip confirmation")
@@ -20,7 +23,7 @@ if not args.no_telegram:
     try:
         print("Setting telegram bot up. . .")
         import asyncio
-        from telegram_bot_controller import TelegramBotController
+        from telegram_bot_manager import TelegramBotController
 
         bot = TelegramBotController()
         loop = asyncio.get_event_loop()
@@ -30,24 +33,9 @@ if not args.no_telegram:
         exit()
 
 load_dotenv()
-DATABASE_URL = (
-    f'mongodb://{os.getenv("MONGO_USER")}:'
-    f'{os.getenv("MONGO_PASS")}@'
-    f'{os.getenv("DB_HOST")}:'
-    f'{os.getenv("DB_PORT")}'
-)
-DATABASE_NAME = os.getenv("DB_NAME")
-
-try:
-    client = pymongo.MongoClient(DATABASE_URL)
-    db = client[DATABASE_NAME]
-    collection = db["companies"]
-    print("Connected to database")
-
-except Exception as e:
-    print("Error connecting to database")
-    print(e)
-    exit()
+db_manager = DbManager()
+db = db_manager.db
+companies_collection = db_manager.get_collection("companies")
 
 if args.number_companies:
     pipeline = [
@@ -55,9 +43,9 @@ if args.number_companies:
         {"$sample": {"size": args.number_companies}},
         {"$replaceRoot": {"newRoot": "$doc"}}
     ]
-    companies_urls = [doc['web'] for doc in collection.aggregate(pipeline)]
+    companies_urls = [doc['web'] for doc in companies_collection.aggregate(pipeline)]
 else:
-    companies_urls = collection.distinct("web")
+    companies_urls = companies_collection.distinct("web")
 
 num_companies = 0
 

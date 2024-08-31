@@ -1,49 +1,34 @@
-import pymongo
 import argparse
-import json
+from db_manager import DbManager
 from tqdm import tqdm
 from dotenv import load_dotenv
-import os
 import ijson
 
 load_dotenv()
-DATABASE_URL = (
-           f'mongodb://{os.getenv("MONGO_USER")}:'
-           f'{os.getenv("MONGO_PASS")}@'
-           f'{os.getenv("DB_HOST")}:'
-           f'{os.getenv("DB_PORT")}'
-           )
-DATABASE_NAME = os.getenv("DB_NAME")
+db_manager = DbManager()
+db = db_manager.db
+companies_collection = db_manager.get_collection("companies")
 
-def process_item(item):
-   if item["info"]["severity"] == "info":
-           name = item["info"]["name"]
-           matcher_name = item.get("matcher-name")
+def process_item(current_item):
+   if current_item["info"]["severity"] == "info":
+           name = current_item["info"]["name"]
+           matcher_name = current_item.get("matcher-name")
            if matcher_name is not None:
                name += f" ({matcher_name})"
                # Remove port from url
-               host = item["host"].split(":")[0]
-               collection.update_one({"web": {"$regex": '.*'+host+'*'}}, {"$addToSet": {"detectedTech": name}},
+               host = current_item["host"].split(":")[0]
+               companies_collection.update_one({"web": {"$regex": '.*'+host+'*'}}, {"$addToSet": {"detectedTech": name}},
                 upsert=True)
-   elif item["info"]["severity"] in ["critical", "high", "medium", "low", "unknown"]:
-       name = item["info"]["name"]
-       matcher_name = item.get("matcher-name")
+   elif current_item["info"]["severity"] in ["critical", "high", "medium", "low", "unknown"]:
+       name = current_item["info"]["name"]
+       matcher_name = current_item.get("matcher-name")
        if matcher_name is not None:
            name += f" ({matcher_name})"
            # Remove port from url
-           host = item["host"].split(":")[0]
-           collection.update_one({"web": {"$regex": '.*'+host+'*'}}, {"$addToSet": {"vulnerabilities": name}},
+           host = current_item["host"].split(":")[0]
+           companies_collection.update_one({"web": {"$regex": '.*'+host+'*'}}, {"$addToSet": {"vulnerabilities": name}},
             upsert=True)
 
-try:
-    # Connect to the database
-    client = pymongo.MongoClient(DATABASE_URL)
-    db = client[DATABASE_NAME]
-    collection = db["companies"]
-    print("Connected to database")
-except:
-    print("Error connecting to database")
-    exit()
 
 # Get the filename of the scan result from arguments
 parser = argparse.ArgumentParser()
@@ -58,6 +43,7 @@ try:
         print("Starting loop")
         for item in tqdm(ijson.items(file, "item"), desc="Processing items", unit="item", ascii=" ▖▘▝▗▚▞█"):
             process_item(item)
+            db_manager.save_scan_item(item)
 except Exception as e:
     print("Error loading scan result")
     print(type(e))
