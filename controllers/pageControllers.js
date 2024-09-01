@@ -369,7 +369,8 @@ const getScanInfo = async (req, res) => {
         const db = connection.db;
         const collection = db.collection('scan_results');
         // Get multiple documents from the collection with the company web
-        const scanInfo = await collection.find({ 'web': web }).toArray();
+        const scanInfo = await collection.find(
+            { 'host': web }, {projection: { _id: 0 }}).toArray();
         return res.json({ success: true, data: scanInfo });
     }
     catch(error) {

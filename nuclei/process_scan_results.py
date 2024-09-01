@@ -1,4 +1,5 @@
 import argparse
+import decimal
 from db_manager import DbManager
 from tqdm import tqdm
 from dotenv import load_dotenv
@@ -29,6 +30,15 @@ def process_item(current_item):
            companies_collection.update_one({"web": {"$regex": '.*'+host+'*'}}, {"$addToSet": {"vulnerabilities": name}},
             upsert=True)
 
+def convert_decimal_to_float(data):
+    if isinstance(data, dict):
+        return {k: convert_decimal_to_float(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [convert_decimal_to_float(i) for i in data]
+    elif isinstance(data, decimal.Decimal):
+        return float(data)
+    return data
+
 
 # Get the filename of the scan result from arguments
 parser = argparse.ArgumentParser()
@@ -43,7 +53,8 @@ try:
         print("Starting loop")
         for item in tqdm(ijson.items(file, "item"), desc="Processing items", unit="item", ascii=" ▖▘▝▗▚▞█"):
             process_item(item)
-            db_manager.save_scan_item(item)
+            converted_item = convert_decimal_to_float(item)
+            db_manager.save_scan_item(converted_item)
 except Exception as e:
     print("Error loading scan result")
     print(type(e))
