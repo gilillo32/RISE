@@ -77,6 +77,6 @@ router.put('/api/updateCompany', updateCompany);
 
 router.delete('/api/deleteCompany/:id', deleteCompany);
 
-router.post('/api/createUser', createUser);
+// router.post('/api/createUser', createUser);
 
 module.exports = { routes: router }
