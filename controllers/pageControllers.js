@@ -1,6 +1,8 @@
 /* MongoDB models */
 const Company = require("../models/company");
 const {connection} = require("mongoose");
+const bcrypt = require('bcryptjs');
+const User = require('../models/user');
 const columnNames = ["name", "province", "web", "lastScanDate", "vulnerabilities", "detectedTech", "actions"];
 
 const webPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
@@ -379,6 +381,25 @@ const getScanInfo = async (req, res) => {
     }
 }
 
+const createUser = async (req, res) => {
+    const {username, password} = req.body;
+
+    try {
+        const existingUser = await User.findOne({username});
+        if (existingUser) {
+            return res.status(409).json({success: false, message: "User already exists"});
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 8);
+        const newUser = new User({username, password: hashedPassword});
+        await newUser.save();
+        return res.json({success: true, message: "User created successfully"});
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({success: false, message: "Error while creating user"});
+    }
+}
+
 module.exports = {
     overviewView,
     companiesView,
@@ -392,5 +413,6 @@ module.exports = {
     updateCompany,
     deleteCompany,
     importCompanyFile,
-    getScanInfo
+    getScanInfo,
+    createUser
 }
