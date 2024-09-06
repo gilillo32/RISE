@@ -17,14 +17,17 @@ const companySchema = new mongoose.Schema({
         required: true
     },
     lastScanDate: {
-        type: Date
+        type: Date,
+        default: Date.now
     },
     vulnerabilities: {
         type: [String],
+        default: []
     },
     detectedTech: {
         type: [String],
-    }
+        default: []
+    },
 })
 
 companySchema.set('toJSON', {
@@ -35,6 +38,15 @@ companySchema.set('toJSON', {
                 month: '2-digit',
                 year: 'numeric',
             });
+        }
+        if (doc.vulnerabilities) {
+            ret.vulnerabilities = doc.vulnerabilities;
+        }
+        if (doc.vulnerabilityCount) {
+            ret.vulnerabilityCount = doc.vulnerabilityCount;
+        }
+        else{
+            ret.vulnerabilityCount = 0;
         }
         return ret;
     },

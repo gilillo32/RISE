@@ -518,6 +518,7 @@ $(function () {
                 data.rowsPerPage = data.length;
                 data.filter = data.search.value;
                 data.sort = data.order;
+                data.vulnerabilties = data.columns[5].search.value;
             },
             dataSrc: 'data'
         },
@@ -532,28 +533,19 @@ $(function () {
                 defaultContent: ''
 
             },
-            { data: 'lastScanDate', defaultContent: '' },
+            {   data: null,
+                orderable: false,
+                defaultContent: '' }, // Placeholder for last scan date
             {
                 data: 'vulnerabilities',
-                orderable: true,
-                render: function (data) {
-                    if (data != null && Array.isArray(data)) {
-                        return data.join(', ');
-                    } else {
-                        return data;
-                    }
-                },
+                orderable: false,
                 defaultContent: ''
             },
             {
                 data: 'detectedTech',
-                orderable: true,
+                orderable: false,
                 render: function (data) {
-                    if (data != null && Array.isArray(data)) {
-                        return data.join(', ');
-                    } else {
-                        return data;
-                    }
+                    return data.join(', ');
                 },
                 defaultContent: ''
             },
@@ -568,18 +560,23 @@ $(function () {
                         '<button type="button" class="btn btn-danger btn-floating btn-delete-company btn-sm">\
                                 <i class="fa-solid fa-trash"></i>\
                             </button>\
-                            '
+                            '+
+                        '<button type="button" class="btn btn-info btn-floating btn-sm" data-mdb-toggle="modal" data-mdb-target="#scanModal">\
+                                <i class="fa-solid fa-search"></i>\
+                            </button>\
+                            ';
                 },
                 className: "column-actions"
             },
         ]
     }).columns.adjust().draw();
 
-    $('#companiesTable tbody').on('click', 'tr', async function () {
-        const companyId = companiesTable.row(this).data()?.NIF;
+    $('#companiesTable').on('click', '.btn-info', async function () {
+        const row = $(this).closest('tr');
+        const companyId = companiesTable.row(row).data()?.NIF;
         if (companyId) {
             try {
-                const response = await fetch(`/api/scaninfo/${companyId}`);
+                const response = await fetch(`/api/scanInfo/${companyId}`);
                 const result = await response.json();
                 const data = result.data;
                 document.getElementById('scanDetail').textContent = JSON.stringify(data,

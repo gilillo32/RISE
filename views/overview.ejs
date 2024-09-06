@@ -1,1 +1,68 @@
 <h1>Dashboard overview - TODO</h1>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="d-flex justify-content-around">
+<!-- Counter for scanned sites -->
+<div class="card text-center text-bg-dark text-white mt-4 w-25">
+    <div class="card-body align-content-center">
+        <i class="fa-solid fa-eye h2"></i>
+        <h5 id="scannedSitesCount" class="card-title h2 fw-bolder">0</h5>
+        <p class="card-subtitle text-secondary-emphasis">Sites scanned</p>
+    </div>
+</div>
+<!-- Counter for vulnerabilities -->
+<div class="card text-center text-bg-warning mt-4 w-25">
+    <div class="card-body align-content-center">
+        <i class="fa-solid fa-face-dizzy h2"></i>
+        <h5 id="vulnerabilityCount" class="card-title h2 fw-bolder">0</h5>
+        <p class="card-subtitle text-secondary-emphasis">Vulnerabilities found in the last scan</p>
+        <div class="d-flex justify-content-around mt-3">
+            <div>
+                <h6 id="lowVulnerabilityCount" class="fw-bolder">0</h6>
+                <p class="text-secondary-emphasis">Low</p>
+            </div>
+            <div>
+                <h6 id="mediumVulnerabilityCount" class="fw-bolder">0</h6>
+                <p class="text-secondary-emphasis">Medium</p>
+            </div>
+            <div>
+                <h6 id="highVulnerabilityCount" class="fw-bolder">0</h6>
+                <p class="text-secondary-emphasis">High</p>
+            </div>
+            <div>
+                <h6 id="criticalVulnerabilityCount" class="fw-bolder">0</h6>
+                <p class="text-secondary-emphasis">Critical</p>
+            </div>
+            <div>
+                <h6 id="unknownVulnerabilityCount" class="fw-bolder">0</h6>
+                <p class="text-secondary-emphasis">Unknown</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card w-25">
+    <div class="card-body">
+        <canvas id="knownVulnerabilitiesChart"></canvas>
+    </div>
+</div>
+</div>
+<!-- Pie chart for known vulnerabilities -->
+<div class="d-flex justify-content-around mt-4">
+
+<!-- Table for vulnerability ranking -->
+<div class="table-responsive mt-4">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Rank</th>
+            <th scope="col">Site</th>
+            <th scope="col">Vulnerabilities</th>
+        </tr>
+        </thead>
+        <tbody id="webRankingList">
+        <!-- Rows will be populated by JavaScript -->
+        </tbody>
+    </table>
+</div>
+</div>
+
+<script src="js/overview.js"></script>
