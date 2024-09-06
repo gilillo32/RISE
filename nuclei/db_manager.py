@@ -43,6 +43,32 @@ class DbManager:
     def get_collection(self, collection_name):
         return self.db[collection_name]
 
-    def save_scan_item(self, item):
-        scan_results_collection = self.get_collection("scan_results")
-        scan_results_collection.insert_one(item)
+    def archive_last_scan(self):
+        try:
+            last_scan_collection = self.get_collection("last_scan")
+            archived_scan_collection = self.get_collection("archived_scans")
+
+            # Ensure collections exist
+            if not last_scan_collection.count_documents({}):
+                print("No documents found in last_scan collection to archive.")
+                return
+
+            if not archived_scan_collection.count_documents({}):
+                self.db.create_collection("archived_scans")
+
+            # Fetch documents from last_scan collection
+            documents = list(last_scan_collection.find())
+
+            if documents:
+                archived_scan_collection.insert_many(documents)
+                last_scan_collection.drop()
+            else:
+                print("No documents found in last_scan collection to archive.")
+        except Exception as e:
+            print("Error archiving last scan")
+            print(type(e))
+            print(str(e))
+
+    def save_last_scan_item(self, item):
+        last_scan_collection = self.get_collection("last_scan")
+        last_scan_collection.insert_one(item)

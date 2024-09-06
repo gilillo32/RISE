@@ -17,6 +17,10 @@ const {
     updateCompany,
     deleteCompany,
     getScanInfo,
+    getScannedSitesCount,
+    getVulnerabilityCount,
+    getVulnerabilityWebRanking,
+    getKnownVulnerabilitiesCount,
     createUser
 } = require('../controllers/pageControllers');
 
@@ -51,7 +55,7 @@ router.post('/login', async (req, res) => {
             return res.redirect('/login')
         }
         req.session.user = user;
-        return overviewView(req, res);
+        return res.redirect('/overview');
     }
     catch (error) {
         console.log('Error while logging in:', error);
@@ -68,7 +72,11 @@ router.post('/logout', (req, res) => {
 router.get('/api/getCompanies', getCompanies);
 router.get('/api/getCompaniesPage', getCompaniesPage);
 router.get('/api/findByNIF/:NIF', findByNIF);
-router.get('/api/scaninfo/:NIF', getScanInfo);
+router.get('/api/scanInfo/:NIF/:severty?', getScanInfo);
+router.get('/api/scannedSitesCount', getScannedSitesCount);
+router.get('/api/vulnerabilityCount/:severity?', getVulnerabilityCount);
+router.get('/api/vulnerabilityWebRanking', getVulnerabilityWebRanking);
+router.get('/api/knownVulnerabilitiesCount/', getKnownVulnerabilitiesCount);
 
 router.post('/api/insertCompany', insertCompany);
 router.post('/api/importCompanyFile', upload.single("file"), importCompanyFile);
@@ -77,6 +85,6 @@ router.put('/api/updateCompany', updateCompany);
 
 router.delete('/api/deleteCompany/:id', deleteCompany);
 
-// router.post('/api/createUser', createUser);
+router.post('/api/createUser', createUser);
 
 module.exports = { routes: router }

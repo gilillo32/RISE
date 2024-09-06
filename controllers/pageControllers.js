@@ -184,9 +184,9 @@ const getCompanies = async (req, res) => {
         }
 
         /* Sorting */
-        const sort = req.query.sort.map(item =>
-            [columnNames[item.column], item.dir === 'asc' ? 1 : -1]
-        );
+        const sort = req.query.sort.map(item => ([
+            columnNames[item.column], item.dir === 'asc' ? 1 : -1
+        ]));
 
         const data = await Company.find(filter).sort(sort).exec();
 
@@ -209,12 +209,12 @@ const getCompaniesPage = async (req, res) => {
         const filter = {};
         if (searchFilter) {
             filter.$or = [
-                { NIF: { $regex: searchFilter, $options: 'i' } },
-                { name: { $regex: searchFilter, $options: 'i' } },
-                { province: { $regex: searchFilter, $options: 'i' } },
-                { web: { $regex: searchFilter, $options: 'i' } },
-                { vulnerabilities: { $regex: searchFilter, $options: 'i' } },
-                { detectedTech: { $regex: searchFilter, $options: 'i' } },
+                {NIF: {$regex: searchFilter, $options: 'i'}},
+                {name: {$regex: searchFilter, $options: 'i'}},
+                {province: {$regex: searchFilter, $options: 'i'}},
+                {web: {$regex: searchFilter, $options: 'i'}},
+                {vulnerabilities: {$regex: searchFilter, $options: 'i'}},
+                {detectedTech: {$regex: searchFilter, $options: 'i'}},
             ];
         }
 
@@ -223,22 +223,37 @@ const getCompaniesPage = async (req, res) => {
             columnNames[item.column], item.dir === 'asc' ? 1 : -1
         ]));
 
-        const data = await Company
+        let data = await Company
             .find(filter)
             .skip(skip)
             .limit(rowsPerPage)
             .sort(sort)
             .exec();
 
-        // format dates to 'dd-mm-aaaa'
         for (let i = 0; i < data.length; i++) {
-            if (data[i].lastScanDate instanceof Date) {
-                /* cannot assign string to a date field, so a new key is created */
-                data[i].formattedDate = data[i].lastScanDate.toLocaleDateString('es-ES'); // 'es-ES' para el formato 'dd-mm-aaaa'
-            }
+            const db = connection.db;
+            const collection = db.collection('last_scan');
+            const hostRegex = new RegExp(`^${data[i].web.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}(?::\\d+)?$`, 'i');
+            const vulnerabilities = await collection.find(
+                { host: hostRegex, 'info.severity': { $ne: 'info' }},
+                { projection: { _id: 0, 'info.name': 1, 'matcher-name': 1 }}
+            ).toArray();
+            data[i].vulnerabilities = vulnerabilities.map(v => {
+                const matcherName = v['matcher-name'] ? ` (${v['matcher-name']})` : ' ';
+                return v['info']['name'] + matcherName;
+            });
+            data[i].vulnerabilityCount = vulnerabilities.length;
+            const detectedTech = await collection.find(
+                { host: hostRegex, 'info.severity': 'info' },
+                { projection: { _id: 0, 'info.name': 1 , 'matcher-name': 1}}
+            ).toArray();
+            data[i].detectedTech = detectedTech.map(t => {
+                const matcherName = t['matcher-name'] ? ` (${t['matcher-name']})` : '';
+                return t['info']['name'] + matcherName;
+            });
         }
-
         const totalDocs = await Company.countDocuments(filter);
+
 
         res.json({
             data: data,
@@ -358,6 +373,7 @@ const deleteCompany = async (req, res) => {
 
 const getScanInfo = async (req, res) => {
     const NIF = req.params.NIF;
+    const severity = req.params.severity
 
     try{
         // Associate the NIF with the company
@@ -367,17 +383,90 @@ const getScanInfo = async (req, res) => {
         }
         // Get the company web
         const web = company.web;
-        // Connect to MongoDB to get scan_results collection
+        // Connect to MongoDB to get last_scan collection
         const db = connection.db;
-        const collection = db.collection('scan_results');
-        // Get multiple documents from the collection with the company web
-        const scanInfo = await collection.find(
-            { 'host': web }, {projection: { _id: 0 }}).toArray();
+        const collection = db.collection('last_scan');
+        const scanInfo = await collection.find({
+            host: web,
+            'info.severity': severity ? severity : { $in : ['info', 'low', 'medium', 'high', 'critical', 'unknown'] }
+        },
+            { projection: { _id: 0 }}
+        ).toArray();
+
         return res.json({ success: true, data: scanInfo });
     }
     catch(error) {
         console.error(error);
         res.status(500).json({success: false, message: `Error while querying scan info for company with NIF ${NIF}`});
+    }
+}
+
+const getScannedSitesCount = async (_, res) => {
+    try {
+        const db = connection.db;
+        const collection = db.collection('companies');
+        const count = await collection.countDocuments();
+        res.json({ success: true, count });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Error while fetching scanned sites count" });
+    }
+}
+
+const getVulnerabilityCount = async (req, res) => {
+    try {
+        const db = connection.db;
+        const collection = db.collection('last_scan');
+        const severity = req.params.severity;
+        const count = await collection.countDocuments(
+            { 'info.severity': severity ? severity : { $ne: 'info' } }
+        );
+        res.json({ success: true, count });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Error while fetching vulnerability count" });
+    }
+}
+
+const getVulnerabilityWebRanking = async (_, res) => {
+    try {
+        const db = connection.db;
+        const collection = db.collection('last_scan');
+        const ranking = await collection.aggregate([
+            { $match: { 'info.severity': { $ne: 'info' } } },
+            { $group: { _id: '$host', count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 10 }
+        ]).toArray();
+        res.json({ success: true, ranking });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Error while fetching vulnerability web ranking" });
+    }
+}
+
+const getKnownVulnerabilitiesCount = async (req, res) => {
+    try {
+        const knownVulns = ["xss", "sqli", "csrf", "lfi", "rce"];
+        const db = connection.db;
+        const collection = db.collection('last_scan');
+        const counts = {};
+
+        for(const vuln of knownVulns){
+            counts[vuln] = await collection.countDocuments({ 'info.tags': vuln });
+        }
+        // Get count of other vulnerabilities that dont contain any of the known vulnerabilities
+        counts["other"] = await collection.countDocuments({ 'info.tags': {
+                $not: {
+                    $elemMatch: { $in: knownVulns }
+                }
+            } });
+
+        res.json({ success: true, ...counts });
+    }
+    catch(error) {
+        console.error(error);
+        res.status(500).json({success: false, message: "Error while fetching known vulnerabilities count"});
     }
 }
 
@@ -414,5 +503,9 @@ module.exports = {
     deleteCompany,
     importCompanyFile,
     getScanInfo,
+    getScannedSitesCount,
+    getVulnerabilityCount,
+    getVulnerabilityWebRanking,
+    getKnownVulnerabilitiesCount,
     createUser
 }

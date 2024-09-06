@@ -7,28 +7,7 @@ import ijson
 
 load_dotenv()
 db_manager = DbManager()
-db = db_manager.db
 companies_collection = db_manager.get_collection("companies")
-
-def process_item(current_item):
-   if current_item["info"]["severity"] == "info":
-           name = current_item["info"]["name"]
-           matcher_name = current_item.get("matcher-name")
-           if matcher_name is not None:
-               name += f" ({matcher_name})"
-               # Remove port from url
-               host = current_item["host"].split(":")[0]
-               companies_collection.update_one({"web": {"$regex": '.*'+host+'*'}}, {"$addToSet": {"detectedTech": name}},
-                upsert=True)
-   elif current_item["info"]["severity"] in ["critical", "high", "medium", "low", "unknown"]:
-       name = current_item["info"]["name"]
-       matcher_name = current_item.get("matcher-name")
-       if matcher_name is not None:
-           name += f" ({matcher_name})"
-           # Remove port from url
-           host = current_item["host"].split(":")[0]
-           companies_collection.update_one({"web": {"$regex": '.*'+host+'*'}}, {"$addToSet": {"vulnerabilities": name}},
-            upsert=True)
 
 def convert_decimal_to_float(data):
     if isinstance(data, dict):
@@ -39,7 +18,6 @@ def convert_decimal_to_float(data):
         return float(data)
     return data
 
-
 # Get the filename of the scan result from arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("filename", help="Scan result filename")
@@ -47,14 +25,14 @@ args = parser.parse_args()
 filename = args.filename
 
 try:
+    db_manager.archive_last_scan()
     # Load the scan result
     print("Opening scan result file")
     with open(filename, "r") as file:
         print("Starting loop")
         for item in tqdm(ijson.items(file, "item"), desc="Processing items", unit="item", ascii=" ▖▘▝▗▚▞█"):
-            process_item(item)
             converted_item = convert_decimal_to_float(item)
-            db_manager.save_scan_item(converted_item)
+            db_manager.save_last_scan_item(converted_item)
 except Exception as e:
     print("Error loading scan result")
     print(type(e))
