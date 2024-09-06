@@ -72,7 +72,7 @@ router.post('/logout', (req, res) => {
 router.get('/api/getCompanies', getCompanies);
 router.get('/api/getCompaniesPage', getCompaniesPage);
 router.get('/api/findByNIF/:NIF', findByNIF);
-router.get('/api/scanInfo/:NIF/:severty?', getScanInfo);
+router.get('/api/scanInfo/:NIF/:severity?', getScanInfo);
 router.get('/api/scannedSitesCount', getScannedSitesCount);
 router.get('/api/vulnerabilityCount/:severity?', getVulnerabilityCount);
 router.get('/api/vulnerabilityWebRanking', getVulnerabilityWebRanking);

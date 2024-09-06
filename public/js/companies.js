@@ -576,16 +576,22 @@ $(function () {
         const companyId = companiesTable.row(row).data()?.NIF;
         if (companyId) {
             try {
-                const response = await fetch(`/api/scanInfo/${companyId}`);
-                const result = await response.json();
-                const data = result.data;
-                document.getElementById('scanDetail').textContent = JSON.stringify(data,
-                    null, 2);
-                const companyDetailsModal = new bootstrap.Modal(document.getElementById(
-                    'companyDetailsModal'));
+                const severities = ['all', 'info', 'low', 'medium', 'high', 'critical', 'unknown'];
+                for (const severity of severities) {
+                    const apiUrl = severity === 'all' ? `/api/scanInfo/${companyId}` : `/api/scanInfo/${companyId}/${severity}`;
+                    const response = await fetch(apiUrl);
+                    const result = await response.json();
+                    const data = result.data;
+                    document.getElementById(`${severity}Vulnerabilities`).textContent = JSON.stringify(data, null, 2);
+                    document.getElementById(`${severity}-tab`).innerText = `${severity} (${data.length})`;
+                }
+                const companyDetalsModalElement = document.getElementById('companyDetailsModal');
+                const companyDetailsModal = new bootstrap.Modal(companyDetalsModalElement);
                 companyDetailsModal.show();
-            } catch (error) {
-                console.error('Error fetching company details:', error);
+
+            }
+            catch (error) {
+                console.error('Error on AJAX request: ', error.responseText);
             }
         }
     });

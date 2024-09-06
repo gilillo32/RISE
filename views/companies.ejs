@@ -177,14 +177,59 @@
 
 <!-- Scan details modal -->
 <div id="companyDetailsModal" class="modal fade" tabindex="-1" aria-labelledby="companyDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="companyDetailsModalLabel">Detection Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <pre><code id="scanDetail"></code></pre>
+                <ul class="nav nav-tabs" id="severityTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="all-tab" data-bs-toggle="tab" href="#all" role="tab" aria-controls="all" aria-selected="true">All</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="info-tab" data-bs-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="false">Info</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="low-tab" data-bs-toggle="tab" href="#low" role="tab" aria-controls="low" aria-selected="false">Low</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="medium-tab" data-bs-toggle="tab" href="#medium" role="tab" aria-controls="medium" aria-selected="false">Medium</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="high-tab" data-bs-toggle="tab" href="#high" role="tab" aria-controls="high" aria-selected="false">High</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="critical-tab" data-bs-toggle="tab" href="#critical" role="tab" aria-controls="critical" aria-selected="false">Critical</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="unknown-tab" data-bs-toggle="tab" href="#unknown" role="tab" aria-controls="unknown" aria-selected="false">Unknown</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="severityTabsContent">
+                    <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                        <pre><code id="allVulnerabilities"></code></pre>
+                    </div>
+                    <div class="tab-pane fade" id="info" role="tabpanel" aria-labelledby="info-tab">
+                        <pre><code id="infoVulnerabilities"></code></pre>
+                    </div>
+                    <div class="tab-pane fade" id="low" role="tabpanel" aria-labelledby="low-tab">
+                        <pre><code id="lowVulnerabilities"></code></pre>
+                    </div>
+                    <div class="tab-pane fade" id="medium" role="tabpanel" aria-labelledby="medium-tab">
+                        <pre><code id="mediumVulnerabilities"></code></pre>
+                    </div>
+                    <div class="tab-pane fade" id="high" role="tabpanel" aria-labelledby="high-tab">
+                        <pre><code id="highVulnerabilities"></code></pre>
+                    </div>
+                    <div class="tab-pane fade" id="critical" role="tabpanel" aria-labelledby="critical-tab">
+                        <pre><code id="criticalVulnerabilities"></code></pre>
+                    </div>
+                    <div class="tab-pane fade" id="unknown" role="tabpanel" aria-labelledby="unknown-tab">
+                        <pre><code id="unknownVulnerabilities"></code></pre>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
