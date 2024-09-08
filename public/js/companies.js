@@ -503,6 +503,11 @@ async function exportCompanies() {
 }
 
 $(function () {
+    $('.filter-pill').on('click', function () {
+        const filter = $(this).data('filter');
+        $('knownVulnerabilityFilter').val(filter);
+        companiesTable.draw();
+    });
     // Initialise companies DataTable
     companiesTable = $('#companiesTable').DataTable({
         scrollX: true,
@@ -518,7 +523,9 @@ $(function () {
                 data.rowsPerPage = data.length;
                 data.filter = data.search.value;
                 data.sort = data.order;
-                data.vulnerabilties = data.columns[5].search.value;
+                data.vulnerabilities = data.columns[5].search.value;
+                data.detectedTech = data.columns[6].search.value;
+                data.knownVulnerability = $('#knownVulnerabilityFilter').val();
             },
             dataSrc: 'data'
         },
@@ -539,6 +546,9 @@ $(function () {
             {
                 data: 'vulnerabilities',
                 orderable: false,
+                render: function (data) {
+                    return data.join(', ');
+                },
                 defaultContent: ''
             },
             {

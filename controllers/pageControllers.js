@@ -203,6 +203,7 @@ const getCompaniesPage = async (req, res) => {
     const rowsPerPage = parseInt(req.query.rowsPerPage) || 10;
     const skip = (currentPage - 1) * rowsPerPage;
     const searchFilter = req.query.filter || '';
+    const knownVulnerability = req.query.knownVulnerability;
 
     try {
         /* Filtering */
@@ -216,6 +217,11 @@ const getCompaniesPage = async (req, res) => {
                 {vulnerabilities: {$regex: searchFilter, $options: 'i'}},
                 {detectedTech: {$regex: searchFilter, $options: 'i'}},
             ];
+        }
+
+        if (knownVulnerability) {
+            console.log("Known")
+            filter['info.tags'] = knownVulnerability;
         }
 
         /* Sorting */
@@ -239,7 +245,7 @@ const getCompaniesPage = async (req, res) => {
                 { projection: { _id: 0, 'info.name': 1, 'matcher-name': 1 }}
             ).toArray();
             data[i].vulnerabilities = vulnerabilities.map(v => {
-                const matcherName = v['matcher-name'] ? ` (${v['matcher-name']})` : ' ';
+                const matcherName = v['matcher-name'] ? ` (${v['matcher-name']})` : '';
                 return v['info']['name'] + matcherName;
             });
             data[i].vulnerabilityCount = vulnerabilities.length;
