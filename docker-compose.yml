@@ -60,7 +60,7 @@ services:
             retries: 3
         restart: always
 
-    app:
+    web:
         build:
             context: .
             dockerfile: Dockerfile
