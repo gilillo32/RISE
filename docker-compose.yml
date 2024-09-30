@@ -82,7 +82,7 @@ services:
         ports:
             - "80:80"  # Mapea el puerto 80 del host al puerto 80 del contenedor Nginx
         depends_on:
-            - app
+            - web
         networks:
             - app-network
 volumes:
