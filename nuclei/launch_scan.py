@@ -5,8 +5,8 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 
-from nuclei.db_manager import DbManager
-from nuclei.process_scan_results import companies_collection
+from .db_manager import DbManager
+from .process_scan_results import companies_collection
 
 # Parse command line arguments
 parser = argparse.ArgumentParser()
