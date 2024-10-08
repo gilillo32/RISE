@@ -1,4 +1,5 @@
 nuclei/shared-volume/targets.txt
+nuclei/shared-volume/results/
 
 
 # Logs
