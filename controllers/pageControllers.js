@@ -480,10 +480,12 @@ const createUser = async (req, res) => {
     const {username, password} = req.body;
 
     try {
+        // Check if there is a user created
+        const userCount = await User.countDocuments({});
+        // Only one user is permited
+        if (userCount > 0) return res.status(409).json({success: false, message: "Database not empty. User creation restricted"})
         const existingUser = await User.findOne({username});
-        if (existingUser) {
-            return res.status(409).json({success: false, message: "User already exists"});
-        }
+        if (existingUser) return res.status(409).json({success: false, message: "User already exists"});
 
         const hashedPassword = await bcrypt.hash(password, 8);
         const newUser = new User({username, password: hashedPassword});
@@ -496,6 +498,7 @@ const createUser = async (req, res) => {
 }
 
 module.exports = {
+    // VIEWS
     overviewView,
     companiesView,
     loginView,
