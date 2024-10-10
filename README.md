@@ -28,7 +28,8 @@ and cybersecurity risks, as part of the RISE project (diagnóstico y prevención
    ```
 5. Access the web server and import data from `dataset` folder.
 
-### How to launch an analysis
+### How to setup scans
+- How to launch an isolated scan:  
 Customize Nuclei configuration file `rise-config.yaml` and execute the `launch_analysis.py` script.  
 Execute `python launch_analysis.py -h` for more information:
 ```bash
@@ -39,4 +40,16 @@ options:
   -y          Skip confirmation
   -n N        Number of companies to scan
 ```
+
+- How to enable de scan service daemon:  
+Change file permissions to make scripts executable:  
+```bash
+   chmod +x ./setup_rise_service.sh
+   chmod +x ./nuclei/run_scan_process.sh
+```
+Setup de daemon with the script:  
+```bash
+   ./setup_rise_service.sh
+```
 ## About
+This project has been developed as a Final Grade Project by Iñigo Gil, student of University of the Basque Country.
