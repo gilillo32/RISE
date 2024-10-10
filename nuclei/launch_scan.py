@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 import os
 
 from .db_manager import DbManager
-from .process_scan_results import companies_collection
 
 # Parse command line arguments
 parser = argparse.ArgumentParser()
