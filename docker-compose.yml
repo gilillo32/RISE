@@ -89,6 +89,7 @@ services:
             - web
         networks:
             - app-network
+        restart: always
 volumes:
     dbdata:
     pia:
