@@ -5,7 +5,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 
-from .db_manager import DbManager
+from db_manager import DbManager
 
 # Parse command line arguments
 parser = argparse.ArgumentParser()
