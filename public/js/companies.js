@@ -503,11 +503,7 @@ async function exportCompanies() {
 }
 
 $(function () {
-    $('.filter-pill').on('click', function () {
-        const filter = $(this).data('filter');
-        $('knownVulnerabilityFilter').val(filter);
-        companiesTable.draw();
-    });
+
     // Initialise companies DataTable
     companiesTable = $('#companiesTable').DataTable({
         scrollX: true,

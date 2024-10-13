@@ -67,7 +67,7 @@ services:
             context: .
             dockerfile: Dockerfile
         ports:
-            - "${APP_PORT}:${APP_PORT}"
+            - "${APP_PORT}"
         environment:
             - NODE_ENV=production
         volumes:
