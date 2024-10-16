@@ -56,6 +56,7 @@ router.post('/login', async (req, res) => {
             return res.redirect('/login')
         }
         req.session.user = user;
+        req.session.isAuthenticated = true;
         return res.redirect('/overview');
     }
     catch (error) {
@@ -70,21 +71,21 @@ router.post('/logout', (req, res) => {
 })
 
 // API routes
-router.get('/api/getCompanies', getCompanies);
-router.get('/api/getCompaniesPage', getCompaniesPage);
-router.get('/api/findByNIF/:NIF', findByNIF);
-router.get('/api/scanInfo/:NIF/:severity?', getScanInfo);
-router.get('/api/scannedSitesCount', getScannedSitesCount);
-router.get('/api/vulnerabilityCount/:severity?', getVulnerabilityCount);
-router.get('/api/vulnerabilityWebRanking', getVulnerabilityWebRanking);
-router.get('/api/knownVulnerabilitiesCount/', getKnownVulnerabilitiesCount);
+router.get('/api/getCompanies', isAuthenticated, getCompanies);
+router.get('/api/getCompaniesPage', isAuthenticated, getCompaniesPage);
+router.get('/api/findByNIF/:NIF', isAuthenticated, findByNIF);
+router.get('/api/scanInfo/:NIF/:severity?', isAuthenticated, getScanInfo);
+router.get('/api/scannedSitesCount', isAuthenticated, getScannedSitesCount);
+router.get('/api/vulnerabilityCount/:severity?', isAuthenticated, getVulnerabilityCount);
+router.get('/api/vulnerabilityWebRanking', isAuthenticated, getVulnerabilityWebRanking);
+router.get('/api/knownVulnerabilitiesCount/', isAuthenticated, getKnownVulnerabilitiesCount);
 
-router.get('/api/service-status', getServiceStatus);
+router.get('/api/service-status', isAuthenticated, getServiceStatus);
 
-router.post('/api/insertCompany', insertCompany);
-router.post('/api/importCompanyFile', upload.single("file"), importCompanyFile);
-router.put('/api/updateCompany', updateCompany);
-router.delete('/api/deleteCompany/:id', deleteCompany);
+router.post('/api/insertCompany', isAuthenticated, insertCompany);
+router.post('/api/importCompanyFile', isAuthenticated, upload.single("file"), importCompanyFile);
+router.put('/api/updateCompany', isAuthenticated, updateCompany);
+router.delete('/api/deleteCompany/:id', isAuthenticated, deleteCompany);
 
 router.post('/api/createUser', createUser);
 

@@ -50,6 +50,14 @@ app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(router.routes);
 
+const isAuthenticated = (req, res, next) => {
+   if (req.session.isAuthenticated) {
+      return next();
+   }
+   res.redirect('/login');
+}
+
+
 // Reference Bootstrap and MDB files from /css and /js
 app.use("/css", express.static(path.join(__dirname, "node_modules/mdb-ui-kit/css")));
 app.use("/js", express.static(path.join(__dirname, "node_modules/bootstrap/dist/js")));
