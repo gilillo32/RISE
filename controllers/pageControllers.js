@@ -220,11 +220,6 @@ const getCompaniesPage = async (req, res) => {
             ];
         }
 
-        if (knownVulnerability) {
-            console.log("Known")
-            filter['info.tags'] = knownVulnerability;
-        }
-
         /* Sorting */
         const sort = req.query.sort.map(item => ([
             columnNames[item.column], item.dir === 'asc' ? 1 : -1
@@ -237,6 +232,7 @@ const getCompaniesPage = async (req, res) => {
             .sort(sort)
             .exec();
 
+
         for (let i = 0; i < data.length; i++) {
             const db = connection.db;
             const collection = db.collection('last_scan');
@@ -245,18 +241,38 @@ const getCompaniesPage = async (req, res) => {
                 { host: hostRegex, 'info.severity': { $ne: 'info' }},
                 { projection: { _id: 0, 'info.name': 1, 'matcher-name': 1 }}
             ).toArray();
+            const unqueVulnerabilities = new Set();
             data[i].vulnerabilities = vulnerabilities.map(v => {
                 const matcherName = v['matcher-name'] ? ` (${v['matcher-name']})` : '';
                 return v['info']['name'] + matcherName;
+            })
+            .filter(name =>{
+                if(unqueVulnerabilities.has(name)){
+                    return false;
+                }
+                else {
+                    unqueVulnerabilities.add(name);
+                    return true;
+                }
             });
             data[i].vulnerabilityCount = vulnerabilities.length;
             const detectedTech = await collection.find(
                 { host: hostRegex, 'info.severity': 'info' },
                 { projection: { _id: 0, 'info.name': 1 , 'matcher-name': 1}}
             ).toArray();
+            const uniqueDetectedTech = new Set();
             data[i].detectedTech = detectedTech.map(t => {
                 const matcherName = t['matcher-name'] ? ` (${t['matcher-name']})` : '';
                 return t['info']['name'] + matcherName;
+            })
+            .filter(name =>{
+                if(uniqueDetectedTech.has(name)){
+                    return false;
+                }
+                else {
+                    uniqueDetectedTech.add(name);
+                    return true;
+                }
             });
         }
         const totalDocs = await Company.countDocuments(filter);
@@ -479,15 +495,22 @@ const getKnownVulnerabilitiesCount = async (req, res) => {
 
 const { exec } = require('child_process');
 
-const getServiceStatus = (req, res) => {
-    exec('systemctl is-actve rise_scan.service', (error, stdout, stderr) => {
-        if(error) {
-            console.error(`exec error: ${error}`);
-            return res.status(500).json({ success: false, message: "Error while fetching service status" });
+const getServiceStatus = async (req, res) => {
+    try {
+        const db = connection.db;
+        const collection = db.collection('is_scan_active');
+        const scanStatus = await collection.findOne({});
+        if (scanStatus.active) {
+            res.status(200).json({ success: true, status: 'up' });
         }
-        const isActive = stdout.trim() === 'active';
-        res.json({ success: true, isActive });
-    });
+        else {
+            res.status(200).json({ success: true, status: "inactive" });
+        }
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Error while fetching service status" });
+    }
 }
 
 const createUser = async (req, res) => {

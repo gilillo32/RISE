@@ -32,5 +32,13 @@
         } else {
             text.style.display = 'block';
         }
+
+        // Adjust dataTable columns
+        const dataTable = $('#companiesTable').DataTable();
+        if (dataTable) {
+            setTimeout(() => {
+                dataTable.columns.adjust().draw();
+            }, 300); // Adjust the timeout as needed
+        }
     });
 </script>

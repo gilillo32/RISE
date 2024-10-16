@@ -1,5 +1,6 @@
 import pymongo
 import os
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -64,11 +65,44 @@ class DbManager:
                 last_scan_collection.drop()
             else:
                 print("No documents found in last_scan collection to archive.")
+
+            # Empty the companies vulnerabilities and detectedTech array fields
+            companies_collection = self.get_collection("companies")
+            companies_collection.update_many({}, {"$set": {"vulnerabilities": [], "detectedTech": []}})
         except Exception as e:
             print("Error archiving last scan")
             print(type(e))
             print(str(e))
 
+    def setScanActive(self, active):
+        try:
+            if active:
+                # Ensure there is only one active scan
+                active_scan_collection = self.get_collection("is_scan_active")
+                active_scan_collection.delete_many({})
+                active_scan_collection.insert_one({"active": True})
+            else:
+                active_scan_collection = self.get_collection("is_scan_active")
+                active_scan_collection.delete_many({})
+                active_scan_collection.insert_one({"active": False})
+        except Exception as e:
+            print("Error setting scan active")
+            print(str(e))
+
     def save_last_scan_item(self, item):
         last_scan_collection = self.get_collection("last_scan")
         last_scan_collection.insert_one(item)
+
+        # Update the company document with the new vulnerabilities and detected technologies
+        companies_collection = self.get_collection("companies")
+        company = companies_collection.find_one({"web": item["host"]})
+        if item['info']['severity'] == "info":
+            # Add to detectedTech array
+            companies_collection.update_one({"web": item["host"]}, {"$addToSet": {"detectedTech": item['info']}})
+        else:
+            # Add to vulnerabilities array
+            companies_collection.update_one({"web": item["host"]}, {"$addToSet": {"vulnerabilities": item['info']}})
+        # Parse timestamp to date:
+        item["timestamp"] = item["timestamp"].split("T")[0]
+        # Set last scan date
+        companies_collection.update_one({"web": item["host"]}, {"$set": {"lastScan": item["timestamp"]}})

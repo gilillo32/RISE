@@ -509,7 +509,7 @@ $(function () {
         scrollX: true,
         paging: true,
         searching: true,
-        lengthMenu: [10, 25, 50, 75, 75, 100],
+        lengthMenu: [10, 25, 50, 75, 100, 80],
         processing: true,
         serverSide: true,
         ajax: {
@@ -521,7 +521,6 @@ $(function () {
                 data.sort = data.order;
                 data.vulnerabilities = data.columns[5].search.value;
                 data.detectedTech = data.columns[6].search.value;
-                data.knownVulnerability = $('#knownVulnerabilityFilter').val();
             },
             dataSrc: 'data'
         },
@@ -536,9 +535,12 @@ $(function () {
                 defaultContent: ''
 
             },
-            {   data: null,
+            {   data: 'lastScanDate',
                 orderable: false,
-                defaultContent: '' }, // Placeholder for last scan date
+                render: function (data) {
+                    return data ? data: '-';
+                },
+                defaultContent: '-' }, // Placeholder for last scan date
             {
                 data: 'vulnerabilities',
                 orderable: false,

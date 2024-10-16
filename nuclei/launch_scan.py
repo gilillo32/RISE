@@ -36,6 +36,9 @@ db_manager = DbManager()
 db = db_manager.db
 companies_collection = db_manager.get_collection("companies")
 
+# Set 'active' in scan status
+db_manager.setScanActive(True)
+
 if args.number_companies:
     pipeline = [
         {"$group": {"_id": "$web", "doc": {"$first": "$$ROOT"}}},
@@ -139,3 +142,5 @@ else:
             print("Scan interrupted :/")
             if not args.no_telegram:
                 loop.run_until_complete(bot.send_message(f"🔴Scan interrupted :/"))
+
+        db_manager.setScanActive(False)

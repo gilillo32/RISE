@@ -18,26 +18,22 @@
 </nav>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        fetch('/api/service-status')
-            .then(response => response.json())
-            .then(data => {
-                const statusText = document.getElementById('service-status-text')
-                const statusIndicator = document.getElementById('service-status-indicator');
-                if (data.isActive) {
-                    statusText.textContent = 'Is rise_scan.service up? Yes';
-                    statusIndicator.style.backgroundColor = 'green';
-                }
-                else {
-                    statusText.textContent = 'Is rise_scan.service up? No';
-                    statusIndicator.style.backgroundColor = 'red';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching service status:', error);
-                const statusText = document.getElementById('service-status-text')
-                statusText.textContent = 'Is rise_scan.service up? Error';
-            })
-    })
+    // Check if the rise_scan.service is up
+    fetch('/api/service-status')
+        .then(response => response.json())
+        .then(data => {
+            const serviceStatusText = document.getElementById('service-status-text');
+            const serviceStatusIndicator = document.getElementById('service-status-indicator');
+            if (data.status === 'up') {
+                serviceStatusText.innerText = 'Is there a scan active? Yes';
+                serviceStatusIndicator.style.backgroundColor = 'green';
+            } else {
+                serviceStatusText.innerText = 'Is there a scan active? No';
+                serviceStatusIndicator.style.backgroundColor = 'red';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 </script>
 

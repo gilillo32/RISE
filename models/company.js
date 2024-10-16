@@ -18,7 +18,6 @@ const companySchema = new mongoose.Schema({
     },
     lastScanDate: {
         type: Date,
-        default: Date.now
     },
     vulnerabilities: {
         type: [String],
