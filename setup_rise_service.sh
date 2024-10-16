@@ -58,25 +58,24 @@ create_user() {
 }
 
 # Read username and password
-echo "Enter username for new user (or leave empty for environment variable):"
-read -r user_input
-
-if [[ -z "$user_input" ]]; then
-  echo "Username is required"
-  exit 1
-else
-  username="$user_input"
+# If PLATFORM_USERNAME and PLATFORM_PASSWORD are set, use them as default values
+# Load .env file
+if [[ -f .env ]]; then
+  export $(grep -v '^#' .env | xargs)
 fi
 
-echo "Enter password for new user (or leave empty for environment variable):"
-read -r -s password_input
-
-if [[ -z "$password_input" ]]; then
-  echo "Password is required"
-  exit 1
+if [[ -z "$PLATFORM_USERNAME" ]]; then
+  read -r -p "Enter the username: " username
 else
-  password="$password_input"
+  username="$PLATFORM_USERNAME"
 fi
+
+if [[ -z "$PLATFORM_PASSWORD" ]]; then
+  read -r -p "Enter the password: " password
+else
+  password="$PLATFORM_PASSWORD"
+fi
+
 
 # Create the user
 create_user "$username" "$password"
