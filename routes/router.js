@@ -21,6 +21,7 @@ const {
     getVulnerabilityCount,
     getVulnerabilityWebRanking,
     getKnownVulnerabilitiesCount,
+    getServiceStatus,
     createUser
 } = require('../controllers/pageControllers');
 
@@ -78,11 +79,11 @@ router.get('/api/vulnerabilityCount/:severity?', getVulnerabilityCount);
 router.get('/api/vulnerabilityWebRanking', getVulnerabilityWebRanking);
 router.get('/api/knownVulnerabilitiesCount/', getKnownVulnerabilitiesCount);
 
+router.get('/api/service-status', getServiceStatus);
+
 router.post('/api/insertCompany', insertCompany);
 router.post('/api/importCompanyFile', upload.single("file"), importCompanyFile);
-
 router.put('/api/updateCompany', updateCompany);
-
 router.delete('/api/deleteCompany/:id', deleteCompany);
 
 router.post('/api/createUser', createUser);
