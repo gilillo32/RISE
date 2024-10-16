@@ -153,6 +153,7 @@ const localFindByNIF = async (nif) => {
 }
 
 const overviewView = (_, res) => {
+
     res.render('overview', { activeLink: 'overview', hideSidebar: false});
 }
 
@@ -476,6 +477,19 @@ const getKnownVulnerabilitiesCount = async (req, res) => {
     }
 }
 
+const { exec } = require('child_process');
+
+const getServiceStatus = (req, res) => {
+    exec('systemctl is-actve rise_scan.service', (error, stdout, stderr) => {
+        if(error) {
+            console.error(`exec error: ${error}`);
+            return res.status(500).json({ success: false, message: "Error while fetching service status" });
+        }
+        const isActive = stdout.trim() === 'active';
+        res.json({ success: true, isActive });
+    });
+}
+
 const createUser = async (req, res) => {
     const {username, password} = req.body;
 
@@ -516,5 +530,6 @@ module.exports = {
     getVulnerabilityCount,
     getVulnerabilityWebRanking,
     getKnownVulnerabilitiesCount,
+    getServiceStatus,
     createUser
 }

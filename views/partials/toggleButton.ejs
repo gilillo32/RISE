@@ -25,5 +25,12 @@
             content.style.marginLeft = '300px';
             content.style.width = 'calc(100% - 300px)';
         }
+        // Service tag
+        const text = document.querySelector('#service-status-text');
+        if (sidebar.classList.contains('sidebar-reduced')) {
+            text.style.display = 'none';
+        } else {
+            text.style.display = 'block';
+        }
     });
 </script>
