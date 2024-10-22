@@ -46,19 +46,36 @@
 </div>
 </div>
 <!-- Pie chart for known vulnerabilities -->
-<div class="d-flex justify-content-around mt-4">
+<div class="d-flex justify-content-around mt-4 flex-wrap">
 
 <!-- Table for vulnerability ranking -->
-<div class="table-responsive mt-4">
-    <table class="table table-striped">
+<div class="table-responsive mt-4 col-12 col-lg-6">
+    <h3>Most vulnerable sites</h3>
+    <table class="table table-bordered">
         <thead>
         <tr>
             <th scope="col">Rank</th>
             <th scope="col">Site</th>
             <th scope="col">Vulnerabilities</th>
+            <th scope="col">Tags</th>
         </tr>
         </thead>
         <tbody id="webRankingList">
+        <!-- Rows will be populated by JavaScript -->
+        </tbody>
+    </table>
+</div>
+<div class="table-responsive mt-4 col-12 col-lg-6">
+    <h3>Most appearing tags</h3>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th scope="col">Rank</th>
+            <th scope="col">Tag</th>
+            <th scope="col">Count</th>
+        </tr>
+        </thead>
+        <tbody id="technologyRankingList">
         <!-- Rows will be populated by JavaScript -->
         </tbody>
     </table>

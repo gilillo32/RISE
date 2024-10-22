@@ -20,6 +20,7 @@ const {
     getScannedSitesCount,
     getVulnerabilityCount,
     getVulnerabilityWebRanking,
+    getTagRanking,
     getKnownVulnerabilitiesCount,
     getServiceStatus,
     createUser
@@ -32,28 +33,30 @@ function isAuthenticated(req, res, next){
         return next();
     }
     else{
-        res.redirect('/login');
+        // Return 401
+        return res.status(401).send('Unauthorized');
     }
 }
 
 /* Website routes */
-router.get('/login', loginView);
+router.get(process.env.LOGIN_PATH, loginView);
 router.get('/', isAuthenticated, overviewView);
 router.get('/overview', isAuthenticated, overviewView);
 router.get('/companies', isAuthenticated, companiesView);
 
-router.post('/login', async (req, res) => {
+// Get login path from env
+router.post(process.env.LOGIN_PATH, async (req, res) => {
     const { username, password } = req.body;
     try{
         const user = await User.findOne({ username });
         if (!user) {
             console.log('User not found');
-            return res.redirect('/login')
+            return res.redirect(process.env.LOGIN_PATH)
         }
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
             console.log('Password does not match');
-            return res.redirect('/login')
+            return res.redirect(process.env.LOGIN_PATH)
         }
         req.session.user = user;
         req.session.isAuthenticated = true;
@@ -61,13 +64,13 @@ router.post('/login', async (req, res) => {
     }
     catch (error) {
         console.log('Error while logging in:', error);
-        return res.redirect('/login')
+        return res.redirect(process.env.LOGIN_PATH)
     }
 })
 
 router.post('/logout', (req, res) => {
     req.session.destroy();
-    res.redirect('/login');
+    res.status(200).send('Logged out');
 })
 
 // API routes
@@ -78,6 +81,7 @@ router.get('/api/scanInfo/:NIF/:severity?', isAuthenticated, getScanInfo);
 router.get('/api/scannedSitesCount', isAuthenticated, getScannedSitesCount);
 router.get('/api/vulnerabilityCount/:severity?', isAuthenticated, getVulnerabilityCount);
 router.get('/api/vulnerabilityWebRanking', isAuthenticated, getVulnerabilityWebRanking);
+router.get('/api/tagRanking', isAuthenticated, getTagRanking);
 router.get('/api/knownVulnerabilitiesCount/', isAuthenticated, getKnownVulnerabilitiesCount);
 
 router.get('/api/service-status', isAuthenticated, getServiceStatus);

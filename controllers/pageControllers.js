@@ -7,6 +7,7 @@ const columnNames = ["name", "province", "web", "lastScanDate", "vulnerabilities
 
 const webPattern = /^(https?:\/\/)?([0-9A-Za-zñáéíóúü0-9-]+\.)+[a-z]{2,6}([\/?].*)?$/i;
 
+
 const insertCompaniesCsvOrTxt = async file => {
     let fileContent, lines;
     let regexp = /("[^"]*")/g;
@@ -162,7 +163,7 @@ const companiesView = async (_, res) => {
 }
 
 const loginView = (_, res) => {
-    res.render('login', { activeLink: 'overview', hideSidebar: true});
+    res.render('login', { activeLink: 'overview', hideSidebar: true, actionUrl: process.env.LOGIN_PATH});
 }
 
 
@@ -457,7 +458,7 @@ const getVulnerabilityWebRanking = async (_, res) => {
         const collection = db.collection('last_scan');
         const ranking = await collection.aggregate([
             { $match: { 'info.severity': { $ne: 'info' } } },
-            { $group: { _id: '$host', count: { $sum: 1 } } },
+            { $group: { _id: '$host', count: { $sum: 1 }, tags: { $addToSet: '$info.tags'} } },
             { $sort: { count: -1 } },
             { $limit: 10 }
         ]).toArray();
@@ -465,6 +466,23 @@ const getVulnerabilityWebRanking = async (_, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: "Error while fetching vulnerability web ranking" });
+    }
+}
+
+const getTagRanking = async (_, res) => {
+    try {
+        const db = connection.db;
+        const collection = db.collection('last_scan');
+        const ranking = await collection.aggregate([
+            { $unwind: '$info.tags' },
+            { $group: { _id: '$info.tags', count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 10 }
+        ]).toArray();
+        res.json({ success: true, ranking });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Error while fetching technology ranking" });
     }
 }
 
@@ -552,6 +570,7 @@ module.exports = {
     getScannedSitesCount,
     getVulnerabilityCount,
     getVulnerabilityWebRanking,
+    getTagRanking,
     getKnownVulnerabilitiesCount,
     getServiceStatus,
     createUser

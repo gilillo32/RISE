@@ -16,7 +16,8 @@ and cybersecurity risks, as part of the RISE project (diagnóstico y prevención
     ```
 2. Install the dependencies:
     ```bash
-    pip install -r requirements.txt
+    pip install -r requirements.txt;
+    npm install
     ```
 3. Deploy the database:
     ```bash
@@ -41,7 +42,7 @@ options:
   -n N        Number of companies to scan
 ```
 
-- How to enable de scan service daemon:  
+- How to enable the scan service daemon:  
 Change file permissions to make scripts executable:  
 ```bash
    chmod +x ./setup_rise_service.sh

@@ -156,10 +156,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const tableBody = document.getElementById('webRankingList');
             vulnerabilityWebRankingData.ranking.forEach((site, index) => {
                 const row = document.createElement('tr');
+                const tags = site.tags.flat().join(', ');
                 row.innerHTML = `
                 <td class="fw-bold">${index + 1}</td>
                 <td class="link-primary"><a href="//${site._id}" target="_blank">${site._id}</a></td>
-                <td>${site.count}</td>`;
+                <td>${site.count}</td>
+                <td>${tags}</td>`;
                 tableBody.appendChild(row);
             });
         } else {
@@ -168,6 +170,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     catch (error) {
         console.error('Error fetching vulnerability web ranking:', error);
+    }
+
+    // Technology ranking
+    try {
+        const technologyRankingRes = await fetch('/api/tagRanking');
+        const technologyRankingData = await technologyRankingRes.json();
+        if (technologyRankingData.success) {
+            const tableBody = document.getElementById('technologyRankingList');
+            technologyRankingData.ranking.forEach((tech, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td class="fw-bold">${index + 1}</td>
+                <td>${tech._id}</td>
+                <td>${tech.count}</td>`;
+                tableBody.appendChild(row);
+            });
+        } else {
+            console.error('Failed to fetch technology ranking');
+        }
+    }
+    catch (error) {
+        console.error('Error fetching technology ranking:', error);
     }
 });
 
