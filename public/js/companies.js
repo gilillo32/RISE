@@ -294,7 +294,7 @@ function submitCompanyForm(event) {
     }
 
     // check whether the website format is correct or not
-    if (urlPattern.test(formProps.web)) {
+    if (urlPattern.test(formProps.website)) {
         $("#website").removeClass("is-invalid");
         $("#website").addClass("is-valid");
     } else {
