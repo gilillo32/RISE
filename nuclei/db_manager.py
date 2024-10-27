@@ -98,10 +98,15 @@ class DbManager:
         company = companies_collection.find_one({"web": item["host"]})
         if item['info']['severity'] == "info":
             # Add to detectedTech array
-            companies_collection.update_one({"web": item["host"]}, {"$addToSet": {"detectedTech": item['info']}})
+            info_to_save = item['info']['name']
+            companies_collection.update_one({"web": item["host"]}, {"$addToSet": {"detectedTech": info_to_save}})
         else:
             # Add to vulnerabilities array
-            companies_collection.update_one({"web": item["host"]}, {"$addToSet": {"vulnerabilities": item['info']}})
+            info_to_save = item['info']['name']
+            # Append matcher name if exists
+            if "matcher_name" in item['info']:
+                info_to_save += " - " + item['info']['matcher_name']
+            companies_collection.update_one({"web": item["host"]}, {"$addToSet": {"vulnerabilities": info_to_save}})
         # Parse timestamp to date:
         item["timestamp"] = item["timestamp"].split("T")[0]
         # Set last scan date
