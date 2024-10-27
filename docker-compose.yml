@@ -83,8 +83,10 @@ services:
         container_name: nginx
         volumes:
             - ./nginx.conf:/etc/nginx/nginx.conf  # Montar el archivo de configuración de Nginx
+            - ./ssl:/etc/nginx/ssl
         ports:
             - "80:80"  # Mapea el puerto 80 del host al puerto 80 del contenedor Nginx
+            - "443:443"  # Mapea el puerto 443 del host al puerto 443 del contenedor Nginx
         depends_on:
             - web
         networks:
